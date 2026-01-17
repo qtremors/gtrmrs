@@ -1,0 +1,33 @@
+# gtrmrs
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+
+# Virtual Environments
+venv/
+.venv/
+env/
+
+# IDE
+.idea/
+.vscode/
+
+# Cache
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Misc
+*.log
+*.tmp
+*.bak
