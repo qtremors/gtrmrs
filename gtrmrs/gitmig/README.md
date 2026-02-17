@@ -8,6 +8,7 @@ gitmig ../backup --dry-run
 gitmig ../backup
 gitmig ../backup --zip
 gitmig ../backup --stats
+gitmig --git-size
 ```
 
 Environment files are preserved by default. Review copied files before sharing them.

@@ -1,8 +1,8 @@
 # Command Guide
 
-> **Version:** 0.0.1
+> **Version:** 0.0.2
 >
-> **Last Updated:** 2026-01-17
+> **Last Updated:** 2026-02-17
 
 Commands operate on the current directory unless a path is supplied. Output
 filenames are relative to the shell's working directory. Use sibling destinations
@@ -39,6 +39,7 @@ gitmig ../backup --dry-run
 gitmig ../backup
 gitmig ../backup --zip
 gitmig ../backup --stats
+gitmig --git-size
 ```
 
 [Migration guide](gtrmrs/gitmig/README.md)

@@ -1,6 +1,6 @@
 # gtrmrs
 
-Version 0.0.1. Small, Git-aware tools for everyday repository work.
+Version 0.0.2. Small, Git-aware tools for everyday repository work.
 
 Requires Python 3.11+. Git-aware operations need Git on PATH. The tools use
 Python's standard library and have no third-party runtime dependencies.
@@ -23,6 +23,10 @@ gitmig ../backup --dry-run  # Preview a repository copy
 
 Run each command directly or through `gtrmrs`, for example `gtrmrs locr`.
 Use `--help` on a command to see its available options.
+
+```sh
+gitmig --git-size       # Inspect Git metadata sizes
+```
 
 ## Guides
 

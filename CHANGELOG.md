@@ -1,5 +1,10 @@
 # gtrmrs - Changelog
 
+## [0.0.2] - 2026-02-17
+
+- Add `gitmig --git-size` to inspect Git metadata sizes without copying repositories.
+- Update the license terms and migration examples.
+
 ## [0.0.1] - 2026-01-17
 
 - Add directory trees, lines-of-code reports and repository migration through `gtrmrs` and direct commands.
