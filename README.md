@@ -1,6 +1,6 @@
 # gtrmrs
 
-Version 0.0.2. Small, Git-aware tools for everyday repository work.
+Version 0.0.3. Small, Git-aware tools for everyday repository work.
 
 Requires Python 3.11+. Git-aware operations need Git on PATH. The tools use
 Python's standard library and have no third-party runtime dependencies.

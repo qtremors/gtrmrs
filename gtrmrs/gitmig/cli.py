@@ -41,6 +41,7 @@ def _configure_parser(parser: argparse.ArgumentParser) -> None:
         action="store_true",
         help="Preview what would be copied without copying.",
     )
+    parser.add_argument("--no-color", action="store_true", help="Disable terminal colors and hyperlinks.")
     parser.add_argument(
         "--zip",
         action="store_true",
@@ -65,7 +66,11 @@ def _configure_parser(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         "--raw",
         action="store_true",
-        help="Include gitignored files but still exclude dependencies.",
+        help="Include gitignored files; built-in directory and file filters still apply.",
+    )
+    parser.add_argument(
+        "--no-default-dir-excludes", action="store_true",
+        help="Disable built-in directory exclusions; Git rules and file safeguards still apply.",
     )
     parser.add_argument(
         "--verbose", "-v",
@@ -199,7 +204,7 @@ def run(args: argparse.Namespace) -> None:
     if not os.path.isdir(source_dir):
         print(f"Error: Source '{source_dir}' is not a valid directory.")
         sys.exit(1)
-    source_dir = os.path.abspath(source_dir)
+    source_dir = os.path.realpath(os.path.abspath(source_dir))
 
     # Validate destination
     if dest_dir and os.path.exists(dest_dir) and not os.path.isdir(dest_dir):
@@ -208,15 +213,15 @@ def run(args: argparse.Namespace) -> None:
 
     # Prevent copying into source
     if dest_dir:
-        abs_dest = os.path.abspath(dest_dir)
+        abs_dest = os.path.realpath(os.path.abspath(dest_dir))
         # Skip this check if using --git-size (read-only mode)
         if not args.git_size:
-            if abs_dest.startswith(source_dir + os.sep) or abs_dest == source_dir:
+            if GitMigEngine._within(abs_dest, source_dir):
                 print("Error: Destination cannot be inside the source directory.")
                 sys.exit(1)
 
     # Create destination if needed
-    if dest_dir and not args.dry_run and not os.path.exists(dest_dir):
+    if dest_dir and not args.dry_run and not args.git_size and not os.path.exists(dest_dir):
         try:
             os.makedirs(dest_dir)
         except OSError as e:
@@ -243,13 +248,16 @@ def run(args: argparse.Namespace) -> None:
         ext_filter=ext_filter,
         raw_mode=args.raw,
         check_git_size=args.git_size,
+        default_dir_excludes=not args.no_default_dir_excludes,
+        use_color=not args.no_color and sys.stdout.isatty(),
     )
 
     try:
-        engine.run()
+        if not engine.run():
+            sys.exit(130 if engine.was_interrupted else 1)
     except KeyboardInterrupt:
-        print(f"\n{Colors.style('Migration interrupted.', Colors.YELLOW)}")
-        sys.exit(1)
+        print("\nMigration interrupted.", file=sys.stderr)
+        sys.exit(130)
 
 
 def main() -> None:

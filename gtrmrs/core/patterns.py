@@ -8,7 +8,7 @@ Combined best-of-all from rtree, locr, and gitmig.
 from typing import List
 
 # =============================================================================
-# Directories to Always Exclude (Eager Pruning)
+# Built-in directory exclusions (tracked source can override these)
 # =============================================================================
 EXCLUDE_DIRS: List[str] = [
     # Version Control
@@ -36,13 +36,14 @@ EXCLUDE_DIRS: List[str] = [
     ".nuxt",
     ".output",
     ".cache",
-    # Build Artifacts
-    "dist",
-    "build",
-    "target",
-    "bin",
-    "obj",
-    "out",
+    # Android / Gradle
+    ".gradle",
+    ".kotlin",
+    ".cxx",
+    "captures",
+    "externalNativeBuild",
+    # Ambiguous names such as build, bin, schemas, and dist belong in the
+    # project's ignore rules, not unconditional source exclusions.
     ".parcel-cache",
     # Misc
     ".DS_Store",
@@ -67,6 +68,12 @@ EXCLUDE_FILE_PATTERNS: List[str] = [
     "*.o",
     "*.so",
     "*.dylib",
+    "local.properties",
+    "signing.properties",
+    "keystore.properties",
+    "*.apk",
+    "*.aab",
+    "*.dex",
 ]
 
 # =============================================================================

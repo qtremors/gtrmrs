@@ -11,16 +11,20 @@ import fnmatch
 import itertools
 import os
 import shutil
+import stat
 import subprocess
 import sys
+import tempfile
 import time
 import zipfile
 from collections import defaultdict
+from pathlib import Path
 from typing import Callable, Dict, List, Optional, Set, Tuple
 
 from gtrmrs.core.colors import Colors
 from gtrmrs.core.patterns import EXCLUDE_DIRS, EXCLUDE_FILE_PATTERNS, PRESERVE_PATTERNS
 from gtrmrs.core.git_utils import is_git_repo, git_check_ignore
+from gtrmrs.core.scan_filter import ScanFilter
 
 # Env file patterns for --env mode
 ENV_PATTERNS: List[str] = [
@@ -53,9 +57,11 @@ class GitMigEngine:
         ext_filter: Optional[List[str]] = None,
         raw_mode: bool = False,
         check_git_size: bool = False,
+        default_dir_excludes: bool = True,
+        use_color: Optional[bool] = None,
     ):
-        self.source_dir = os.path.abspath(source_dir)
-        self.dest_dir = os.path.abspath(dest_dir)
+        self.source_dir = os.path.realpath(os.path.abspath(source_dir))
+        self.dest_dir = os.path.realpath(os.path.abspath(dest_dir))
         self.dry_run = dry_run
         self.use_zip = use_zip
         self.show_stats = show_stats
@@ -71,18 +77,25 @@ class GitMigEngine:
         self.ext_filter = ext_filter  # List of extensions like ['md', 'py']
         self.raw_mode = raw_mode  # Include gitignored files but exclude dependencies
         self.check_git_size = check_git_size
+        self.default_dir_excludes = default_dir_excludes
+        self.use_color = sys.stdout.isatty() if use_color is None else use_color
 
         # Merge excludes
         self.exclude_dirs = list(EXCLUDE_DIRS)
         self.exclude_files = list(EXCLUDE_FILE_PATTERNS)
+        self.exclude_files.extend(["*.jks", "*.keystore"])
+        self.explicit_file_excludes: List[str] = []
+        self.explicit_dir_excludes: List[str] = []
 
         if extra_excludes:
             for pattern in extra_excludes:
                 pattern = pattern.strip()
                 if pattern.endswith("/"):
                     self.exclude_dirs.append(pattern.rstrip("/"))
+                    self.explicit_dir_excludes.append(pattern.rstrip("/"))
                 else:
                     self.exclude_files.append(pattern)
+                    self.explicit_file_excludes.append(pattern)
 
         # Remove .git from exclusions if --include-git
         if self.include_git and ".git" in self.exclude_dirs:
@@ -91,13 +104,15 @@ class GitMigEngine:
         # Stats
         self.repos_found: List[str] = []
         self.total_files_copied = 0
-        self.total_files_skipped = 0
+        self.total_dirs_skipped = 0
         self.total_bytes_copied = 0
         self.preserved_files: List[str] = []
         self.symlinks_skipped = 0
         self.large_files_skipped = 0
         self.files_overwritten = 0
         self.files_skipped_existing = 0
+        self.archives_skipped_existing = 0
+        self.errors: List[str] = []
         self.start_time: float = 0
         self.was_interrupted = False
 
@@ -111,17 +126,61 @@ class GitMigEngine:
         self.last_spin_time = 0
         self.spinner_active = False
 
+    def _style(self, text: str, color: str, enabled: bool = True) -> str:
+        return Colors.style(text, color, enabled and self.use_color)
+
     def _print(self, message: str = "", style_color: str = None) -> None:
         """Print message unless in quiet mode."""
         if not self.quiet:
             if style_color:
-                print(Colors.style(message, style_color))
+                print(self._style(message, style_color))
             else:
                 print(message)
 
     def _print_error(self, message: str) -> None:
         """Always print errors, even in quiet mode."""
-        print(Colors.style(message, Colors.RED))
+        self.errors.append(message)
+        print(self._style(message, Colors.RED, sys.stderr.isatty()), file=sys.stderr)
+
+    @staticmethod
+    def _is_link(path: str) -> bool:
+        info = os.lstat(path)
+        return stat.S_ISLNK(info.st_mode) or bool(getattr(info, "st_file_attributes", 0) & 0x400)
+
+    @staticmethod
+    def _within(path: str, root: str) -> bool:
+        try:
+            return os.path.commonpath([os.path.normcase(path), os.path.normcase(root)]) == os.path.normcase(root)
+        except ValueError:
+            return False
+
+    def _safe_destination(self, *parts: str) -> str:
+        """Check the resolved boundary and reject links below the chosen destination."""
+        path = os.path.abspath(os.path.join(self.dest_dir, *parts))
+        if not self._within(path, self.dest_dir):
+            raise OSError("Destination escaped the selected directory")
+        current = self.dest_dir
+        paths = [current]
+        for part in os.path.relpath(path, self.dest_dir).split(os.sep):
+            current = os.path.join(current, part)
+            paths.append(current)
+        for current in paths:
+            if os.path.lexists(current) and self._is_link(current):
+                raise OSError("Destination contains a link or junction: " + current)
+        resolved = os.path.realpath(path)
+        if not self._within(resolved, self.dest_dir) or os.path.normcase(os.path.realpath(self.dest_dir)) != os.path.normcase(self.dest_dir):
+            raise OSError("Destination directory changed or escaped its boundary")
+        if self._within(resolved, self.source_dir):
+            raise OSError("Destination cannot overlap the source directory")
+        return path
+
+    def _source_file(self, repo_path: str, rel_path: str) -> str:
+        path = os.path.abspath(os.path.join(repo_path, rel_path))
+        if not self._within(path, repo_path) or not self._within(os.path.realpath(path), os.path.realpath(repo_path)):
+            raise OSError("Source file escaped the repository: " + rel_path)
+        if self._is_link(path) or not stat.S_ISREG(os.lstat(path).st_mode):
+            raise OSError("Source is not a regular file: " + rel_path)
+        return path
 
     def _update_spinner(self, msg: str = "") -> None:
         """Update spinner if active."""
@@ -150,7 +209,9 @@ class GitMigEngine:
 
     def _make_clickable(self, path: str) -> str:
         """Make a file path clickable in supported terminals using OSC 8."""
-        file_url = f"file://{path.replace(os.sep, '/')}"
+        if not self.use_color:
+            return path
+        file_url = Path(os.path.abspath(path)).as_uri()
         return f"\033]8;;{file_url}\033\\{path}\033]8;;\033\\"
 
     def _is_git_repo(self, path: str) -> bool:
@@ -159,25 +220,29 @@ class GitMigEngine:
 
     def _git_check_ignore(self, repo_path: str, relpaths: List[str]) -> Set[str]:
         """Use git check-ignore to determine ignored paths."""
-        return git_check_ignore(repo_path, relpaths)
+        return git_check_ignore(repo_path, relpaths, strict=True)
 
     def _find_repos(self) -> List[str]:
         """Find repos to process based on source directory."""
         # If source is itself a repo, return just its name
         if self._is_git_repo(self.source_dir):
-            return [os.path.basename(self.source_dir)]
+            name = os.path.basename(self.source_dir)
+            return [name] if not self.only_repos or name in self.only_repos else []
 
         # Otherwise, find all repos in the directory
         repos = []
         try:
             for entry in sorted(os.listdir(self.source_dir)):
                 full_path = os.path.join(self.source_dir, entry)
+                if self._is_link(full_path):
+                    self.symlinks_skipped += 1
+                    continue
                 if os.path.isdir(full_path) and self._is_git_repo(full_path):
                     if self.only_repos and entry not in self.only_repos:
                         continue
                     repos.append(entry)
-        except PermissionError:
-            pass
+        except OSError as exc:
+            self._on_walk_error(exc)
         return repos
 
     def _should_exclude_dir(self, dirname: str) -> bool:
@@ -225,10 +290,15 @@ class GitMigEngine:
         files_to_copy: List[Tuple[str, int]] = []
         skipped_stats: Dict[str, int] = {}
         all_relpaths: List[str] = []
+        policy = ScanFilter(
+            repo_path, raw_mode=self.raw_mode, default_dir_excludes=self.default_dir_excludes,
+            extra_excludes=self.explicit_dir_excludes, include_git=self.include_git, defaults_in_raw=True,
+        )
+        policy.check_ignore = self._git_check_ignore
 
         # Phase 1: Walk and collect with eager pruning
         try:
-            for dirpath, dirnames, filenames in os.walk(repo_path, topdown=True):
+            for dirpath, dirnames, filenames in os.walk(repo_path, topdown=True, onerror=self._on_walk_error):
                 self._update_spinner(f"Scanning {repo_name}")
 
                 rel_dir = os.path.relpath(dirpath, repo_path)
@@ -236,50 +306,57 @@ class GitMigEngine:
                     rel_dir = ""
 
                 # Eager prune excluded directories
-                dirs_to_remove = []
+                active_dirs = []
+                candidates = [os.path.join(rel_dir, d) + os.sep for d in dirnames
+                              if not self._is_link(os.path.join(dirpath, d))]
+                # Preserve the ability to find .env configs inside ignored folders.
+                # Default cache/dependency directories are still pruned eagerly.
+                excluded = policy.ignored(candidates, apply_ignore_rules=False)
                 for d in dirnames:
-                    if self._should_exclude_dir(d):
-                        excluded_path = os.path.join(dirpath, d)
-                        try:
-                            count = sum(
-                                len(files) for _, _, files in os.walk(excluded_path)
-                            )
-                            skipped_stats[d] = skipped_stats.get(d, 0) + count
-                        except PermissionError:
-                            skipped_stats[d] = skipped_stats.get(d, 0)
-                        dirs_to_remove.append(d)
-
-                for d in dirs_to_remove:
-                    dirnames.remove(d)
+                    directory = os.path.join(dirpath, d)
+                    if self._is_link(directory):
+                        self.symlinks_skipped += 1
+                        continue
+                    if os.path.join(rel_dir, d) + os.sep in excluded:
+                        skipped_stats[d] = skipped_stats.get(d, 0) + 1
+                    else:
+                        active_dirs.append(d)
+                dirnames[:] = active_dirs
 
                 # Collect file paths
                 for f in filenames:
+                    if f == ".git" and self.include_git:
+                        self._print_error("Cannot include external Git metadata from a worktree/submodule .git file; omit --include-git")
+                        return [], skipped_stats
                     rel_path = os.path.join(rel_dir, f) if rel_dir else f
                     all_relpaths.append(rel_path)
 
-        except PermissionError as e:
-            self._print(f"  {Colors.style('Warning:', Colors.YELLOW)} {e}")
+        except (OSError, RuntimeError) as e:
+            self._on_walk_error(e)
             return files_to_copy, skipped_stats
 
         # Phase 2: Git filtering (skip if raw_mode)
         ignored_by_git: Set[str] = set()
-        if not self.raw_mode and self._is_git_repo(repo_path):
-            ignored_by_git = self._git_check_ignore(repo_path, all_relpaths)
+        try:
+            ignored_by_git = policy.ignored(all_relpaths)
+        except (RuntimeError, OSError) as exc:
+            self._print_error("Could not verify ignored files in {}: {}".format(repo_name, exc))
+            return [], skipped_stats
 
         # Phase 3: Process files with all filters
         for rel_path in all_relpaths:
             filename = os.path.basename(rel_path)
             full_path = os.path.join(repo_path, rel_path)
 
-            # Skip symlinks
-            if os.path.islink(full_path):
-                self.symlinks_skipped += 1
-                continue
-
             try:
+                if self._is_link(full_path):
+                    self.symlinks_skipped += 1
+                    continue
+                full_path = self._source_file(repo_path, rel_path)
                 file_size = os.path.getsize(full_path)
-            except OSError:
-                file_size = 0
+            except OSError as exc:
+                self._print_error("Could not inspect {}: {}".format(rel_path, exc))
+                continue
 
             # Skip large files
             if self.max_size and file_size > self.max_size:
@@ -289,7 +366,15 @@ class GitMigEngine:
                     self._print(f"      Skipping large file ({size_mb:.1f} MB): {rel_path}")
                 continue
 
-            # Mode-specific filtering
+            # Explicit exclusions always win, including over preserved configurations.
+            if any(fnmatch.fnmatch(filename, pattern) for pattern in self.explicit_file_excludes):
+                continue
+            if self._should_exclude_file(filename) and not self._should_preserve(filename):
+                continue
+            if rel_path in ignored_by_git and not self._should_preserve(filename) and not self.env_only:
+                continue
+
+            # Selection narrows the safely filtered file list.
             if self.env_only:
                 # --env mode: only copy .env files
                 if not self._matches_env_pattern(filename):
@@ -297,12 +382,6 @@ class GitMigEngine:
             elif self.ext_filter:
                 # --ext mode: only copy matching extensions
                 if not self._matches_ext_filter(filename):
-                    continue
-            else:
-                # Default mode: respect .gitignore but preserve special files
-                if rel_path in ignored_by_git and not self._should_preserve(filename):
-                    continue
-                if self._should_exclude_file(filename) and not self._should_preserve(filename):
                     continue
 
             # Track preserved files
@@ -320,42 +399,51 @@ class GitMigEngine:
 
     def _on_walk_error(self, error: OSError) -> None:
         """Handle errors during os.walk."""
-        if self.verbose:
-            self._print(f"  {Colors.style('Warning:', Colors.YELLOW)} {error}")
+        self._print_error("Could not scan source directory: {}".format(error))
 
     def _copy_repo(
         self, repo_name: str, repo_path: str, files_to_copy: List[Tuple[str, int]]
     ) -> int:
         """Copy files from repo to destination. Returns bytes copied."""
-        dst_repo = os.path.join(self.dest_dir, repo_name)
         bytes_copied = 0
 
         for rel_path, file_size in files_to_copy:
             if self.was_interrupted:
                 break
 
-            src_file = os.path.join(repo_path, rel_path)
-            dst_file = os.path.join(dst_repo, rel_path)
-
+            temporary = None
             try:
+                src_file = self._source_file(repo_path, rel_path)
+                dst_file = self._safe_destination(repo_name, rel_path)
                 dst_dir = os.path.dirname(dst_file)
-                os.makedirs(dst_dir, exist_ok=True)
-
+                existed = os.path.exists(dst_file)
                 if os.path.exists(dst_file):
+                    if not os.path.isfile(dst_file) or os.path.samefile(src_file, dst_file):
+                        raise OSError("Destination is not a distinct regular file")
                     if self.skip_existing:
                         self.files_skipped_existing += 1
                         if self.verbose:
                             self._print(
-                                f"      {Colors.style('Skipped (exists):', Colors.GREY)} {rel_path}"
+                                f"      {self._style('Skipped (exists):', Colors.GREY)} {rel_path}"
                             )
                         continue
-                    self.files_overwritten += 1
                     if not self.force and not self.quiet:
                         self._print(
-                            f"      {Colors.style('Overwriting:', Colors.YELLOW)} {rel_path}"
+                            f"      {self._style('Overwriting:', Colors.YELLOW)} {rel_path}"
                         )
 
-                shutil.copy2(src_file, dst_file)
+                if not self.dry_run:
+                    os.makedirs(dst_dir, exist_ok=True)
+                    self._safe_destination(repo_name, rel_path)
+                    descriptor, temporary = tempfile.mkstemp(prefix=".gitmig-", dir=dst_dir)
+                    os.close(descriptor)
+                    shutil.copy2(src_file, temporary)
+                    self._safe_destination(repo_name, rel_path)
+                    os.replace(temporary, dst_file)
+                    temporary = None
+                self.total_files_copied += 1
+                if existed:
+                    self.files_overwritten += 1
                 bytes_copied += file_size
 
                 if self.verbose:
@@ -363,6 +451,9 @@ class GitMigEngine:
 
             except (PermissionError, OSError) as e:
                 self._print_error(f"  Warning: Could not copy {rel_path}: {e}")
+            finally:
+                if temporary is not None:
+                    self._discard_temporary(temporary)
 
         return bytes_copied
 
@@ -370,36 +461,67 @@ class GitMigEngine:
         self, repo_name: str, repo_path: str, files_to_copy: List[Tuple[str, int]]
     ) -> int:
         """Create a zip archive of the repo. Returns bytes of archive."""
-        zip_path = os.path.join(self.dest_dir, f"{repo_name}.zip")
-
+        temporary = None
         try:
-            with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
+            zip_path = self._safe_destination(f"{repo_name}.zip")
+            existed = os.path.exists(zip_path)
+            if existed and not os.path.isfile(zip_path):
+                raise OSError("Archive destination is not a regular file")
+            if existed and self.skip_existing:
+                self.archives_skipped_existing += 1
+                return 0
+            if existed and not self.force:
+                self._print("      Overwriting archive: " + zip_path)
+            if self.dry_run:
+                for rel_path, _ in files_to_copy:
+                    self._source_file(repo_path, rel_path)
+                self.total_files_copied += len(files_to_copy)
+                return sum(size for _, size in files_to_copy)
+            os.makedirs(self.dest_dir, exist_ok=True)
+            descriptor, temporary = tempfile.mkstemp(prefix=".gitmig-", suffix=".zip", dir=self.dest_dir)
+            os.close(descriptor)
+            with zipfile.ZipFile(temporary, "w", zipfile.ZIP_DEFLATED) as zf:
                 for rel_path, file_size in files_to_copy:
                     if self.was_interrupted:
-                        break
+                        raise OSError("Archive creation was interrupted")
                     # Normalize path and check for directory traversal attacks
                     normalized = os.path.normpath(rel_path)
                     if (
-                        normalized.startswith("..")
+                        ".." in normalized.split(os.sep)
                         or os.path.isabs(normalized)
                         or normalized.startswith(os.sep)
                     ):
-                        self._print_error(f"  Skipping unsafe path: {rel_path}")
-                        continue
+                        raise OSError("Unsafe archive path: " + rel_path)
 
-                    src_file = os.path.join(repo_path, rel_path)
+                    src_file = self._source_file(repo_path, rel_path)
                     arc_name = os.path.join(repo_name, rel_path).replace("\\", "/")
                     zf.write(src_file, arc_name)
 
                     if self.verbose:
                         self._print(f"      {rel_path}")
 
-            return os.path.getsize(zip_path)
+            self._safe_destination(f"{repo_name}.zip")
+            size = os.path.getsize(temporary)
+            os.replace(temporary, zip_path)
+            temporary = None
+            self.total_files_copied += len(files_to_copy)
+            if existed:
+                self.files_overwritten += 1
+            return size
         except (OSError, zipfile.BadZipFile, zipfile.LargeZipFile) as e:
             self._print_error(f"  Warning: Could not create zip for {repo_name}: {e}")
             return 0
+        finally:
+            if temporary is not None:
+                self._discard_temporary(temporary)
 
-    def run(self) -> None:
+    def _discard_temporary(self, path: str) -> None:
+        try:
+            os.unlink(path)
+        except OSError as exc:
+            self._print_error("Could not remove temporary file {}: {}".format(path, exc))
+
+    def run(self) -> bool:
         """Execute the migration."""
         self.start_time = time.time()
         self._print()
@@ -411,8 +533,8 @@ class GitMigEngine:
         self.repos_found = self._find_repos()
 
         if not self.repos_found:
-            self._print(f"No git repositories found in {self.source_dir}", Colors.YELLOW)
-            return
+            self._print_error(f"No matching git repositories found in {self.source_dir}")
+            return False
 
         # Mode indicator
         mode_str = ""
@@ -465,7 +587,7 @@ class GitMigEngine:
 
             self._print()
             self._print(sep)
-            self._print(Colors.style(fmt.format("Repository", "Size"), Colors.BOLD))
+            self._print(self._style(fmt.format("Repository", "Size"), Colors.BOLD))
             self._print(thin_sep)
 
             for name, size in git_sizes:
@@ -506,7 +628,7 @@ class GitMigEngine:
                 # Actually, let's color the whole line for better visibility in the table.
 
                 line_content = fmt.format(name, size_str)
-                self._print(Colors.style(line_content, col))
+                self._print(self._style(line_content, col))
 
             self._print(thin_sep)
 
@@ -518,23 +640,23 @@ class GitMigEngine:
             else:
                 total_str = f"{total_git_size / 1024:.2f} KB"
 
-            self._print(Colors.style(fmt.format("TOTAL", total_str), Colors.BOLD))
+            self._print(self._style(fmt.format("TOTAL", total_str), Colors.BOLD))
             self._print(sep)
             self._print(f"Processed {len(git_sizes)} repositories.")
             self._print()
 
-            return
+            return not self.errors
 
         if is_single_repo:
             self._print(f"Copying repository{mode_str}")
         else:
             self._print(
-                f"Detected {Colors.style(str(len(self.repos_found)), Colors.CYAN)} repositories{mode_str}"
+                f"Detected {self._style(str(len(self.repos_found)), Colors.CYAN)} repositories{mode_str}"
             )
         self._print()
 
         # Setup spinner
-        self.spinner_active = not self.quiet and sys.stdout.isatty()
+        self.spinner_active = not self.quiet and self.use_color and sys.stdout.isatty()
         if self.spinner_active:
             sys.stdout.write(Colors.HIDE_CURSOR)
 
@@ -544,7 +666,7 @@ class GitMigEngine:
                     break
 
                 self._print(
-                    f"[{idx}/{len(self.repos_found)}] {Colors.style(repo_name + '/', Colors.BLUE)}"
+                    f"[{idx}/{len(self.repos_found)}] {self._style(repo_name + '/', Colors.BLUE)}"
                 )
 
                 # Get repo path (different for single vs multi repo mode)
@@ -553,52 +675,51 @@ class GitMigEngine:
                 else:
                     repo_path = os.path.join(self.source_dir, repo_name)
 
+                errors_before_scan = len(self.errors)
                 files_to_copy, skipped_stats = self._scan_repo(repo_name, repo_path)
+                if len(self.errors) != errors_before_scan:
+                    continue
 
                 # Clear spinner line
                 if self.spinner_active:
                     sys.stdout.write("\r" + " " * 50 + "\r")
 
                 total_skipped = sum(skipped_stats.values())
-                total_bytes = sum(size for _, size in files_to_copy)
 
                 mode_label = "Zipping" if self.use_zip else "Copying"
                 self._print(
-                    f"      → {mode_label}: {Colors.style(str(len(files_to_copy)), Colors.GREEN)} files"
+                    f"      → {mode_label}: {self._style(str(len(files_to_copy)), Colors.GREEN)} files"
                 )
 
                 if skipped_stats and not self.env_only and not self.ext_filter:
                     skip_parts = [
-                        f"{k}/ ({v:,})"
+                        f"{k}/ ({v:,} dirs)"
                         for k, v in sorted(skipped_stats.items(), key=lambda x: -x[1])[:5]
                     ]
                     self._print(
-                        f"      → Skipping: {Colors.style(', '.join(skip_parts), Colors.GREY)}"
+                        f"      → Skipping: {self._style(', '.join(skip_parts), Colors.GREY)}"
                     )
 
-                if not self.dry_run:
-                    if self.use_zip:
-                        bytes_out = self._zip_repo(repo_name, repo_path, files_to_copy)
-                    else:
-                        bytes_out = self._copy_repo(repo_name, repo_path, files_to_copy)
-                    self.total_bytes_copied += bytes_out
+                if self.use_zip:
+                    bytes_out = self._zip_repo(repo_name, repo_path, files_to_copy)
                 else:
-                    self.total_bytes_copied += total_bytes
+                    bytes_out = self._copy_repo(repo_name, repo_path, files_to_copy)
+                self.total_bytes_copied += bytes_out
 
-                self.total_files_copied += len(files_to_copy)
-                self.total_files_skipped += total_skipped
+                self.total_dirs_skipped += total_skipped
                 self._print()
 
         except KeyboardInterrupt:
             self.was_interrupted = True
             self._print()
-            self._print(Colors.style("⚠ Migration interrupted.", Colors.YELLOW))
+            self._print(self._style("⚠ Migration interrupted.", Colors.YELLOW))
 
         finally:
             if self.spinner_active:
                 sys.stdout.write(Colors.SHOW_CURSOR)
 
         self._print_summary()
+        return not self.errors and not self.was_interrupted
 
     def _print_summary(self) -> None:
         """Print final summary."""
@@ -607,39 +728,42 @@ class GitMigEngine:
         self._print(sep)
 
         if self.was_interrupted:
-            self._print(Colors.style("INTERRUPTED", Colors.YELLOW) + " — partial results")
+            self._print(self._style("INTERRUPTED", Colors.YELLOW) + " - partial results")
+        elif self.errors:
+            self._print(self._style("MIGRATION INCOMPLETE", Colors.RED))
+            self._print("Copied: {:,} files; {} errors.".format(self.total_files_copied, len(self.errors)))
         elif self.dry_run:
-            self._print(Colors.style("DRY RUN COMPLETE", Colors.YELLOW) + " (no files copied)")
+            self._print(self._style("DRY RUN COMPLETE", Colors.YELLOW) + " (no files copied)")
             self._print(
-                f"Would copy: {Colors.style(f'{self.total_files_copied:,}', Colors.GREEN)} files across {len(self.repos_found)} repos"
+                f"Would copy: {self._style(f'{self.total_files_copied:,}', Colors.GREEN)} files across {len(self.repos_found)} repos"
             )
-            if self.total_files_skipped > 0:
+            if self.total_dirs_skipped > 0:
                 self._print(
-                    f"Would skip: ~{Colors.style(f'{self.total_files_skipped:,}', Colors.GREY)} dependency/cache files"
+                    f"Would skip: {self._style(f'{self.total_dirs_skipped:,}', Colors.GREY)} dependency/cache directories"
                 )
         else:
             mode = "ZIPPED" if self.use_zip else "COPIED"
-            self._print(Colors.style(f"MIGRATION COMPLETE ({mode})", Colors.GREEN))
+            self._print(self._style(f"MIGRATION COMPLETE ({mode})", Colors.GREEN))
             self._print(
-                f"Copied: {Colors.style(f'{self.total_files_copied:,}', Colors.GREEN)} files across {len(self.repos_found)} repos"
+                f"Copied: {self._style(f'{self.total_files_copied:,}', Colors.GREEN)} files across {len(self.repos_found)} repos"
             )
-            if self.total_files_skipped > 0:
+            if self.total_dirs_skipped > 0:
                 self._print(
-                    f"Skipped: ~{Colors.style(f'{self.total_files_skipped:,}', Colors.GREY)} dependency/cache files"
+                    f"Skipped: {self._style(f'{self.total_dirs_skipped:,}', Colors.GREY)} dependency/cache directories"
                 )
 
             if self.total_bytes_copied > 0:
                 size_mb = self.total_bytes_copied / (1024 * 1024)
-                self._print(f"Total size: {Colors.style(f'{size_mb:.2f} MB', Colors.CYAN)}")
+                self._print(f"Total size: {self._style(f'{size_mb:.2f} MB', Colors.CYAN)}")
 
             self._print(
-                f"\nDestination: {Colors.style(self._make_clickable(self.dest_dir), Colors.BLUE)}"
+                f"\nDestination: {self._style(self._make_clickable(self.dest_dir), Colors.BLUE)}"
             )
 
         # Show preserved files
         if self.preserved_files and not self.env_only:
             self._print(
-                f"\nPreserved configs: {Colors.style(str(len(self.preserved_files)), Colors.GREEN)} files (.env, .gitignore)"
+                f"\nPreserved configs: {self._style(str(len(self.preserved_files)), Colors.GREEN)} files (.env, .gitignore)"
             )
             if self.verbose:
                 for pf in self.preserved_files[:10]:
@@ -649,15 +773,17 @@ class GitMigEngine:
 
         # Additional stats
         if self.symlinks_skipped > 0:
-            self._print(f"Symlinks skipped: {Colors.style(str(self.symlinks_skipped), Colors.GREY)}")
+            self._print(f"Symlinks skipped: {self._style(str(self.symlinks_skipped), Colors.GREY)}")
         if self.large_files_skipped > 0:
-            self._print(f"Large files skipped: {Colors.style(str(self.large_files_skipped), Colors.GREY)}")
+            self._print(f"Large files skipped: {self._style(str(self.large_files_skipped), Colors.GREY)}")
         if self.files_overwritten > 0:
-            self._print(f"Files overwritten: {Colors.style(str(self.files_overwritten), Colors.YELLOW)}")
+            self._print(f"Files overwritten: {self._style(str(self.files_overwritten), Colors.YELLOW)}")
         if self.files_skipped_existing > 0:
-            self._print(f"Files skipped (existing): {Colors.style(str(self.files_skipped_existing), Colors.GREY)}")
+            self._print(f"Files skipped (existing): {self._style(str(self.files_skipped_existing), Colors.GREY)}")
+        if self.archives_skipped_existing > 0:
+            self._print("Archives skipped (existing): {}".format(self.archives_skipped_existing))
 
-        self._print(f"\nCompleted in {Colors.style(f'{elapsed:.2f}s', Colors.CYAN)}")
+        self._print(f"\nCompleted in {self._style(f'{elapsed:.2f}s', Colors.CYAN)}")
 
         if self.show_stats and self.extension_stats:
             self._print_stats()
@@ -667,9 +793,9 @@ class GitMigEngine:
     def _print_stats(self) -> None:
         """Print detailed file type breakdown."""
         self._print()
-        self._print(Colors.style("─" * 50, Colors.WHITE))
-        self._print(Colors.style("FILE TYPE BREAKDOWN", Colors.CYAN))
-        self._print(Colors.style("─" * 50, Colors.WHITE))
+        self._print(self._style("─" * 50, Colors.WHITE))
+        self._print(self._style("SELECTED FILE TYPE BREAKDOWN", Colors.CYAN))
+        self._print(self._style("─" * 50, Colors.WHITE))
 
         sorted_stats = sorted(
             self.extension_stats.items(), key=lambda x: x[1]["count"], reverse=True

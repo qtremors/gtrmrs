@@ -1,6 +1,6 @@
 # Command Guide
 
-> **Version:** 0.0.2
+> **Version:** 0.0.3
 >
 > **Last Updated:** 2026-02-17
 
@@ -40,6 +40,7 @@ gitmig ../backup
 gitmig ../backup --zip
 gitmig ../backup --stats
 gitmig --git-size
+gitmig ../backup --dry-run --no-color
 ```
 
 [Migration guide](gtrmrs/gitmig/README.md)

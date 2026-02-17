@@ -1,5 +1,12 @@
 # gtrmrs - Changelog
 
+## [0.0.3] - 2026-02-17
+
+- Write copied files and ZIP archives atomically, preserve existing data on failure, and honor archive resume skips.
+- Reject source overlaps and linked destinations; copy worktrees and submodules as source snapshots without external Git metadata.
+- Respect Git rules, tracked source, explicit exclusions and extension filters; avoid traversing excluded directories.
+- Protect signing keys, count completed copies accurately, return failure on copy errors, and support plain terminal output with `--no-color`.
+
 ## [0.0.2] - 2026-02-17
 
 - Add `gitmig --git-size` to inspect Git metadata sizes without copying repositories.
