@@ -72,6 +72,16 @@ Copies **all files** including those in `.gitignore`, but still excludes:
 - Dependencies (`node_modules`, `venv`)
 - `.git` folder
 
+### --git-size — Check .git Folder Size
+
+```bash
+gitmig --git-size
+```
+Calculates and displays the size of the `.git` folder for all found repositories.
+- **Read-only**: Does not copy or migrate any files.
+- **Table Output**: Shows results in a sorted table (largest first).
+
+
 ---
 
 ## Arguments
@@ -87,6 +97,7 @@ Copies **all files** including those in `.gitignore`, but still excludes:
 | `--raw` | Include gitignored files |
 | `--exclude` | Additional patterns (comma-separated) |
 | `--include-git` | Include .git folder |
+| `--git-size` | Calculate .git folder size (no copy) |
 | `--max-size` | Skip files larger than limit (e.g., `10M`) |
 | `--only` | Only specific repos (comma-separated) |
 | `--force` | Overwrite without warning |
