@@ -1,8 +1,20 @@
 # gtrmrs — Changelog
 
 > **Project:** gtrmrs (unified CLI)
-> **Version:** 1.0.0
-> **Last Updated:** 17-01-2026
+> **Version:** 1.1.0
+> **Last Updated:** 17-02-2026
+
+---
+
+## [1.1.0] — 17-02-2026
+
+### Added
+
+- **gitmig**: New `--git-size` flag
+  - Calculates and displays the size of `.git` folders
+  - Outputs a sorted table (largest to smallest)
+  - Read-only mode (skips migration)
+  - Supports `gitmig --git-size` to scan current directory
 
 ---
 

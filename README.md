@@ -10,7 +10,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.8+-blue?logo=python" alt="Python">
-  <img src="https://img.shields.io/badge/Version-1.0.0-green" alt="Version">
+  <img src="https://img.shields.io/badge/Version-1.1.0-green" alt="Version">
   <img src="https://img.shields.io/badge/License-TSL-red" alt="License">
 </p>
 
@@ -84,6 +84,7 @@ gitmig ./backup          # Copy all repos to backup
 gitmig --dry-run         # Preview what would be copied
 gitmig --zip             # Create .zip archives
 gitmig --stats           # Show file type breakdown
+gitmig --git-size        # Show .git folder sizes
 ```
 
 ---

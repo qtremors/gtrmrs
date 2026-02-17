@@ -33,7 +33,7 @@ def _configure_parser(parser: argparse.ArgumentParser) -> None:
     """Configure argument parser with gitmig options."""
     parser.add_argument(
         "paths",
-        nargs="+",
+        nargs="*",
         help="Destination, or [source] [destination]",
     )
     parser.add_argument(
@@ -116,6 +116,11 @@ def _configure_parser(parser: argparse.ArgumentParser) -> None:
         help="Copy only files with given extension(s) (comma-separated, e.g., 'md,py').",
     )
     parser.add_argument(
+        "--git-size",
+        action="store_true",
+        help="Calculate and show size of .git folder (skips migration).",
+    )
+    parser.add_argument(
         "--version",
         action="version",
         version=f"gitmig {__version__}",
@@ -144,9 +149,20 @@ def _parse_size(size_str: str) -> Optional[int]:
 def run(args: argparse.Namespace) -> None:
     """Execute gitmig command."""
     # Parse positional arguments
-    if len(args.paths) == 1:
-        source_dir = os.getcwd()
-        dest_dir = args.paths[0]
+    source_dir = os.getcwd()
+    dest_dir = None
+
+    if len(args.paths) == 0:
+        if not args.git_size:
+            print("Error: Destination argument is required.")
+            print("Usage: gitmig [source] destination")
+            sys.exit(1)
+        # For --git-size, default source is current dir, no dest needed
+    elif len(args.paths) == 1:
+        if args.git_size:
+            source_dir = args.paths[0]
+        else:
+            dest_dir = args.paths[0]
     elif len(args.paths) == 2:
         source_dir = args.paths[0]
         dest_dir = args.paths[1]
@@ -186,18 +202,21 @@ def run(args: argparse.Namespace) -> None:
     source_dir = os.path.abspath(source_dir)
 
     # Validate destination
-    if os.path.exists(dest_dir) and not os.path.isdir(dest_dir):
+    if dest_dir and os.path.exists(dest_dir) and not os.path.isdir(dest_dir):
         print(f"Error: Destination '{dest_dir}' exists but is not a directory.")
         sys.exit(1)
 
     # Prevent copying into source
-    abs_dest = os.path.abspath(dest_dir)
-    if abs_dest.startswith(source_dir + os.sep) or abs_dest == source_dir:
-        print("Error: Destination cannot be inside the source directory.")
-        sys.exit(1)
+    if dest_dir:
+        abs_dest = os.path.abspath(dest_dir)
+        # Skip this check if using --git-size (read-only mode)
+        if not args.git_size:
+            if abs_dest.startswith(source_dir + os.sep) or abs_dest == source_dir:
+                print("Error: Destination cannot be inside the source directory.")
+                sys.exit(1)
 
     # Create destination if needed
-    if not args.dry_run and not os.path.exists(dest_dir):
+    if dest_dir and not args.dry_run and not os.path.exists(dest_dir):
         try:
             os.makedirs(dest_dir)
         except OSError as e:
@@ -207,7 +226,7 @@ def run(args: argparse.Namespace) -> None:
     # Run migration
     engine = GitMigEngine(
         source_dir,
-        dest_dir,
+        dest_dir if dest_dir else "",
         dry_run=args.dry_run,
         use_zip=args.zip,
         show_stats=args.stats,
@@ -223,6 +242,7 @@ def run(args: argparse.Namespace) -> None:
         env_only=args.env,
         ext_filter=ext_filter,
         raw_mode=args.raw,
+        check_git_size=args.git_size,
     )
 
     try:

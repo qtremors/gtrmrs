@@ -216,6 +216,9 @@ gitmig ./backup --ext "py,md,json"
 
 # Include gitignored files (but still exclude deps)
 gitmig ./backup --raw
+
+# Check .git folder sizes (read-only)
+gitmig --git-size
 ```
 
 ### Output Modes

@@ -52,6 +52,7 @@ class GitMigEngine:
         env_only: bool = False,
         ext_filter: Optional[List[str]] = None,
         raw_mode: bool = False,
+        check_git_size: bool = False,
     ):
         self.source_dir = os.path.abspath(source_dir)
         self.dest_dir = os.path.abspath(dest_dir)
@@ -69,6 +70,7 @@ class GitMigEngine:
         self.env_only = env_only
         self.ext_filter = ext_filter  # List of extensions like ['md', 'py']
         self.raw_mode = raw_mode  # Include gitignored files but exclude dependencies
+        self.check_git_size = check_git_size
 
         # Merge excludes
         self.exclude_dirs = list(EXCLUDE_DIRS)
@@ -130,6 +132,21 @@ class GitMigEngine:
             sys.stdout.write(f"\r{msg} {next(self.spinner)}")
             sys.stdout.flush()
             self.last_spin_time = now
+
+    def _get_dir_size(self, path: str) -> int:
+        """Calculate total size of a directory."""
+        total = 0
+        try:
+            for dirpath, _, filenames in os.walk(path):
+                for f in filenames:
+                    fp = os.path.join(dirpath, f)
+                    try:
+                        total += os.path.getsize(fp)
+                    except OSError:
+                        pass
+        except OSError:
+            pass
+        return total
 
     def _make_clickable(self, path: str) -> str:
         """Make a file path clickable in supported terminals using OSC 8."""
@@ -405,6 +422,108 @@ class GitMigEngine:
             mode_str = f" (*.{', *.'.join(self.ext_filter)} only)"
         elif self.raw_mode:
             mode_str = " (raw mode)"
+
+        # Special mode: check .git size
+        if self.check_git_size:
+            self._print("Calculating .git folder sizes...")
+            self._print()
+            
+            git_sizes = []
+            total_git_size = 0
+            
+            for _, repo_name in enumerate(self.repos_found, 1):
+                if is_single_repo:
+                    repo_path = self.source_dir
+                else:
+                    repo_path = os.path.join(self.source_dir, repo_name)
+                
+                git_dir = os.path.join(repo_path, ".git")
+                if os.path.isdir(git_dir):
+                    size = self._get_dir_size(git_dir)
+                    git_sizes.append((repo_name, size))
+                    total_git_size += size
+                else:
+                    git_sizes.append((repo_name, 0)) # Should not happen if _is_git_repo checked out
+            
+            # Sort by size descending
+            git_sizes.sort(key=lambda x: x[1], reverse=True)
+            
+            # Print Table
+            # Dynamic width calculation
+            max_name_len = len("Repository")
+            for name, _ in git_sizes:
+                max_name_len = max(max_name_len, len(name))
+            
+            # Cap at reasonable limits
+            col1_width = max(30, min(max_name_len + 2, 60))
+            col2_width = 15
+            total_width = col1_width + col2_width + 1 # +1 for space
+            
+            fmt = f"{{:<{col1_width}}} {{:>{col2_width}}}"
+            sep = "=" * total_width
+            thin_sep = "-" * total_width
+            
+            self._print()
+            self._print(sep)
+            self._print(Colors.style(fmt.format("Repository", "Size"), Colors.BOLD))
+            self._print(thin_sep)
+            
+            for name, size in git_sizes:
+                size_mb = size / (1024 * 1024)
+                if size_mb >= 1024:
+                    size_str = f"{size_mb / 1024:.2f} GB"
+                elif size_mb >= 1:
+                    size_str = f"{size_mb:.2f} MB"
+                else:
+                    size_str = f"{size / 1024:.2f} KB"
+                
+                # Colorize logic based on size
+                # > 1024 MB (1 GiB): Red + Bold (Critical)
+                # > 500 MB: Red
+                # > 200 MB: Magenta
+                # > 100 MB: Yellow
+                # > 50 MB: Cyan
+                # > 10 MB: Blue
+                # <= 10 MB: White (default)
+                
+                col = Colors.WHITE
+                if size_mb > 1024:
+                    col = Colors.RED + Colors.BOLD
+                elif size_mb > 500:
+                    col = Colors.RED
+                elif size_mb > 200:
+                    col = Colors.MAGENTA
+                elif size_mb > 100:
+                    col = Colors.YELLOW
+                elif size_mb > 50:
+                    col = Colors.CYAN
+                elif size_mb > 10:
+                    col = Colors.BLUE
+                
+                # Apply color to the Size column only, or the whole line?
+                # Let's color the Size column specifically to make it pop, 
+                # but we need to format the string carefully.
+                # Actually, let's color the whole line for better visibility in the table.
+                
+                line_content = fmt.format(name, size_str)
+                self._print(Colors.style(line_content, col))
+
+            self._print(thin_sep)
+            
+            total_mb = total_git_size / (1024 * 1024)
+            if total_mb >= 1024:
+                total_str = f"{total_mb / 1024:.2f} GB"
+            elif total_mb >= 1:
+                total_str = f"{total_mb:.2f} MB"
+            else:
+                total_str = f"{total_git_size / 1024:.2f} KB"
+                
+            self._print(Colors.style(fmt.format("TOTAL", total_str), Colors.BOLD))
+            self._print(sep)
+            self._print(f"Processed {len(git_sizes)} repositories.")
+            self._print()
+            
+            return
 
         if is_single_repo:
             self._print(f"Copying repository{mode_str}")
