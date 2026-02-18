@@ -1,5 +1,12 @@
 # gtrmrs - Changelog
 
+## [0.0.4] - 2026-02-18
+
+- Respect nested Git rules and tracked source in tree scans, with strict errors when Git verification fails.
+- Handle plain-folder ignore anchors, nested rules and restoration; add `--no-default-dir-excludes` for directory defaults.
+- Include Git metadata in raw trees, preserve Unicode connectors, and report failed output writes.
+- Keep redirected output plain and clear terminal spinners correctly on narrow screens and scan failures.
+
 ## [0.0.3] - 2026-02-17
 
 - Write copied files and ZIP archives atomically, preserve existing data on failure, and honor archive resume skips.

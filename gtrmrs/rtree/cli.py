@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import itertools
 import os
+import shutil
 import sys
 import time
 from typing import List, Optional
@@ -71,6 +72,10 @@ def _configure_parser(parser: argparse.ArgumentParser) -> None:
         help="Max recursion depth. Default: unlimited.",
     )
     parser.add_argument(
+        "--no-default-dir-excludes", action="store_true",
+        help="Disable built-in directory exclusions; Git rules still apply.",
+    )
+    parser.add_argument(
         "--no-color",
         action="store_true",
         help="Disable colored output.",
@@ -89,6 +94,11 @@ def _configure_parser(parser: argparse.ArgumentParser) -> None:
 
 def run(args: argparse.Namespace) -> None:
     """Execute rtree command."""
+    if hasattr(sys.stdout, "reconfigure"):
+        try:
+            sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        except Exception:
+            pass
     cwd = os.getcwd()
 
     # Handle --list mode
@@ -100,7 +110,7 @@ def run(args: argparse.Namespace) -> None:
                 if os.path.isdir(os.path.join(cwd, n, ".git"))
             ]
             for r in repos:
-                print(Colors.style(r, Colors.BLUE, not args.no_color))
+                print(Colors.style(r, Colors.BLUE, not args.no_color and sys.stdout.isatty()))
             if not repos:
                 print("No git repos found.")
         except OSError:
@@ -120,13 +130,19 @@ def run(args: argparse.Namespace) -> None:
     # Determine color usage
     out_arg = args.out
     writing_to_file = out_arg is not None
-    use_color = not args.no_color and not writing_to_file
+    use_color = not args.no_color and not writing_to_file and sys.stdout.isatty()
 
     # Spinner setup
     spinner_active = not writing_to_file and sys.stdout.isatty()
     msg = f"rtree: scanning {os.path.basename(repo_path)}..."
     spinner = itertools.cycle(["|", "/", "-", "\\"])
     last_spin = 0
+
+    def clear_spinner():
+        if spinner_active:
+            width = max(0, shutil.get_terminal_size().columns - 1)
+            sys.stdout.write("\r" + " " * width + "\r")
+            sys.stdout.flush()
 
     def update_spinner(*args):
         nonlocal last_spin
@@ -152,6 +168,7 @@ def run(args: argparse.Namespace) -> None:
             max_depth=args.depth,
             use_color=use_color,
             callback=update_spinner,
+            default_dir_excludes=not args.no_default_dir_excludes,
         )
 
         output_lines = (
@@ -159,9 +176,7 @@ def run(args: argparse.Namespace) -> None:
         )
 
         # Clear spinner
-        if spinner_active:
-            sys.stdout.write(f"\r{' ' * (len(msg) + 5)}\r")
-            sys.stdout.flush()
+        clear_spinner()
 
         if writing_to_file:
             outname = (
@@ -172,12 +187,17 @@ def run(args: argparse.Namespace) -> None:
             try:
                 with open(outname, "w", encoding="utf-8") as f:
                     f.write("\n".join(output_lines) + "\n")
-                print(f"Output written to: {Colors.style(str(outname), Colors.GREEN)}")
+                print(f"Output written to: {outname}")
             except OSError as e:
                 print(f"Error writing to '{outname}': {e}", file=sys.stderr)
+                sys.exit(1)
         else:
             print("\n".join(output_lines))
 
+    except (OSError, RuntimeError) as exc:
+        clear_spinner()
+        print("Error scanning directory: {}".format(exc), file=sys.stderr)
+        sys.exit(1)
     finally:
         if spinner_active:
             sys.stdout.write(Colors.SHOW_CURSOR)
