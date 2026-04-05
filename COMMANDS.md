@@ -1,8 +1,8 @@
 # Command Guide
 
-> **Version:** 0.0.4
+> **Version:** 0.0.5
 >
-> **Last Updated:** 2026-02-18
+> **Last Updated:** 2026-04-05
 
 Commands operate on the current directory unless a path is supplied. Output
 filenames are relative to the shell's working directory. Use sibling destinations

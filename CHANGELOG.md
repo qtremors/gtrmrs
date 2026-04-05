@@ -1,5 +1,10 @@
 # gtrmrs - Changelog
 
+## [0.0.5] - 2026-04-05
+
+- Count Gradle, AIDL, ProGuard and properties files alongside Kotlin, Java and Android XML.
+- Document Android project scanning and build-artifact selection.
+
 ## [0.0.4] - 2026-02-18
 
 - Respect nested Git rules and tracked source in tree scans, with strict errors when Git verification fails.

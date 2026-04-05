@@ -13,4 +13,6 @@ locr --no-color
 
 Output paths use the shell working directory. Counting is lexical, not a compiler.
 
+Android files include Gradle, Kotlin scripts, AIDL, ProGuard, properties and XML.
+
 [All commands](../../COMMANDS.md) | [Project](../../README.md)
