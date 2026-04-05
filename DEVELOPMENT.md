@@ -1,7 +1,7 @@
 # gtrmrs — Development Guide
 
-> **Version:** 1.1.0  
-> **Last Updated:** 17-02-2026
+> **Version:** 1.2.0  
+> **Last Updated:** 05-04-2026
 
 ---
 

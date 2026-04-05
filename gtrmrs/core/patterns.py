@@ -36,6 +36,12 @@ EXCLUDE_DIRS: List[str] = [
     ".nuxt",
     ".output",
     ".cache",
+    # Android / Gradle
+    ".gradle",
+    ".kotlin",
+    ".cxx",
+    "captures",
+    "externalNativeBuild",
     # Build Artifacts
     "dist",
     "build",
@@ -67,6 +73,10 @@ EXCLUDE_FILE_PATTERNS: List[str] = [
     "*.o",
     "*.so",
     "*.dylib",
+    "local.properties",
+    "*.apk",
+    "*.aab",
+    "*.dex",
 ]
 
 # =============================================================================

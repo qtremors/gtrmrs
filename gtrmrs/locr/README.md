@@ -9,6 +9,7 @@
 ## Features
 
 - 📊 **Language Detection** — Recognizes 20+ programming languages
+- 🤖 **Android-Aware** — Counts Kotlin, Gradle, AIDL, ProGuard, and Android XML files automatically
 - 🎯 **Accurate Counting** — Separates code, comments, and blank lines
 - 🎨 **Smart Colors** — Language-specific syntax highlighting
 - 📈 **Statistics** — Percentage breakdowns for file share and comment density
@@ -24,6 +25,9 @@ locr
 
 # Scan specific folder
 locr src
+
+# Analyze an Android project
+locr app --stats
 
 # With color and stats
 locr --color --stats
@@ -61,6 +65,12 @@ locr -o
 | `.html` | HTML | `<!-- -->` |
 | `.css` | CSS | `/* */` |
 | `.java` | Java | `//`, `/* */` |
+| `.kt` | Kotlin | `//`, `/* */` |
+| `.kts` | Kotlin Script | `//`, `/* */` |
+| `.gradle` | Gradle | `//`, `/* */` |
+| `.aidl` | AIDL | `//`, `/* */` |
+| `.pro` | ProGuard | `#` |
+| `.properties` | Properties | `#` |
 | `.go` | Go | `//`, `/* */` |
 | `.rs` | Rust | `//`, `/* */` |
 | `.md` | Markdown | None |
@@ -74,6 +84,9 @@ locr -o
 ```bash
 # Detailed stats with color
 locr src --color --stats
+
+# Android app module + Gradle files
+locr app --stats
 
 # JSON for CI/CD pipelines
 locr --json -o report.json

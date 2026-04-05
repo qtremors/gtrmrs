@@ -1,8 +1,30 @@
 # gtrmrs — Changelog
 
 > **Project:** gtrmrs (unified CLI)
-> **Version:** 1.1.0
-> **Last Updated:** 17-02-2026
+> **Version:** 1.2.0
+> **Last Updated:** 05-04-2026
+
+---
+
+## [1.2.0] — 05-04-2026
+
+### Added
+
+- **Android / Gradle Repo Support**
+  - Added automatic Android-friendly handling across `rtree`, `locr`, and `gitmig`
+  - Added Kotlin, Kotlin Script, Gradle, AIDL, ProGuard, and Properties support to `locr`
+  - Added focused regression tests for Android-shaped repositories
+
+### Changed
+
+- **Shared Exclusion Rules**
+  - Exclude Android/Gradle cache and generated directories such as `.gradle`, `.kotlin`, `.cxx`, `captures`, and `externalNativeBuild`
+  - Exclude Android build artifacts and machine-local files such as `local.properties`, `*.apk`, `*.aab`, and `*.dex`
+
+### Documentation
+
+- Updated README and tool docs with Android project examples
+- Synced project documentation to version `1.2.0`
 
 ---
 
