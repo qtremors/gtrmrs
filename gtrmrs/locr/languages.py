@@ -5,6 +5,8 @@ Language definitions for lines of code counting.
 Contains comment syntax, file extensions, and display colors.
 """
 
+import os
+
 from gtrmrs.core.colors import Colors
 
 # =============================================================================
@@ -16,7 +18,7 @@ LANGUAGES = {
         "name": "Python",
         "color": Colors.YELLOW,
         "single": "#",
-        "multi": ('"""', '"""'),
+        "multi": None,
     },
     # Web (Red/Blue/Magenta)
     ".html": {
@@ -73,6 +75,42 @@ LANGUAGES = {
     ".cpp": {
         "name": "C++",
         "color": Colors.BLUE,
+        "single": "//",
+        "multi": ("/*", "*/"),
+    },
+    ".cc": {
+        "name": "C++",
+        "color": Colors.BLUE,
+        "single": "//",
+        "multi": ("/*", "*/"),
+    },
+    ".cxx": {
+        "name": "C++",
+        "color": Colors.BLUE,
+        "single": "//",
+        "multi": ("/*", "*/"),
+    },
+    ".hpp": {
+        "name": "C++ Header",
+        "color": Colors.BLUE,
+        "single": "//",
+        "multi": ("/*", "*/"),
+    },
+    ".hh": {
+        "name": "C++ Header",
+        "color": Colors.BLUE,
+        "single": "//",
+        "multi": ("/*", "*/"),
+    },
+    ".hxx": {
+        "name": "C++ Header",
+        "color": Colors.BLUE,
+        "single": "//",
+        "multi": ("/*", "*/"),
+    },
+    ".proto": {
+        "name": "Protocol Buffers",
+        "color": Colors.CYAN,
         "single": "//",
         "multi": ("/*", "*/"),
     },
@@ -164,3 +202,28 @@ LANGUAGES = {
         "multi": ("--[[", "]]"),
     },
 }
+
+# Aliases share a definition so counting and language totals remain consistent.
+LANGUAGES[".pyi"] = LANGUAGES[".py"]
+LANGUAGES[".sass"] = LANGUAGES[".scss"]
+for extension in (".bash", ".zsh"):
+    LANGUAGES[extension] = LANGUAGES[".sh"]
+LANGUAGES[".swift"] = {
+    "name": "Swift", "color": Colors.RED, "single": "//", "multi": ("/*", "*/"),
+}
+LANGUAGES[".ps1"] = {
+    "name": "PowerShell", "color": Colors.BLUE, "single": "#", "multi": ("<#", "#>"),
+}
+for extension in (".bat", ".cmd"):
+    LANGUAGES[extension] = {
+        "name": "Batch", "color": Colors.GREEN, "single": None, "multi": None,
+    }
+
+FILENAMES = {
+    "Dockerfile": {"name": "Dockerfile", "color": Colors.CYAN, "single": "#", "multi": None},
+}
+
+
+def language_for(path):
+    """Recognize documented extensions and exact special filenames."""
+    return FILENAMES.get(os.path.basename(path)) or LANGUAGES.get(os.path.splitext(path)[1].lower())

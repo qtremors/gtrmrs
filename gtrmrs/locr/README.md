@@ -15,4 +15,6 @@ Output paths use the shell working directory. Counting is lexical, not a compile
 
 Android files include Gradle, Kotlin scripts, AIDL, ProGuard, properties and XML.
 
+Mixed comments and code, Python strings and nested Kotlin, Rust and Swift block comments are recognized. Invalid UTF-8 and unreadable files are excluded from successful totals.
+
 [All commands](../../COMMANDS.md) | [Project](../../README.md)

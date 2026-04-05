@@ -305,7 +305,7 @@ def run(args: argparse.Namespace) -> None:
 
     try:
         engine = LocrEngine(target_path, raw_mode=args.raw)
-        results = engine.scan(callback=update_spinner)
+        results, _file_results = engine.scan(callback=update_spinner)
 
         if spinner_active:
             w = shutil.get_terminal_size().columns

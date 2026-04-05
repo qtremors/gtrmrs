@@ -1,5 +1,12 @@
 # gtrmrs - Changelog
 
+## [0.0.6] - 2026-04-05
+
+- Count mixed comment/code lines, Python strings and docstrings, and nested Kotlin, Rust and Swift block comments accurately.
+- Recognize C++ headers and sources, Protocol Buffers, Python stubs, Sass, Swift, PowerShell, batch and shell aliases, and Dockerfile.
+- Use shared Git-aware selection for LOC scans and exclude unreadable or invalid UTF-8 files from successful totals.
+- Add focused counting and Android regression fixtures.
+
 ## [0.0.5] - 2026-04-05
 
 - Count Gradle, AIDL, ProGuard and properties files alongside Kotlin, Java and Android XML.
