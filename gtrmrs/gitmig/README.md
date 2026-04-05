@@ -2,7 +2,7 @@
 
 > Part of the [gtrmrs](../../README.md) unified CLI toolkit.
 
-**gitmig** copies Git repositories without dependencies—no `node_modules`, `venv`, or `.git`.
+**gitmig** copies Git repositories without dependencies—no `node_modules`, `venv`, Android build output, or `.git`.
 
 ---
 
@@ -10,6 +10,7 @@
 
 - ⚡ **Fast** — Skips heavy folders, copies only source code
 - 🌲 **Git-Aware** — Respects `.gitignore` rules
+- 🤖 **Android-Friendly** — Automatically skips Gradle and Android build caches
 - 🔒 **Safe** — Never modifies source repos (copy only)
 - 📦 **Zip Mode** — Create archives instead of folders
 - 🔧 **Preserves Configs** — Always keeps `.env`, `.gitignore`
@@ -25,6 +26,9 @@ gitmig ./backup
 
 # Preview what would be copied
 gitmig ./backup --dry-run
+
+# Copy an Android app repo without Gradle/build output
+gitmig ./backup --only "android-app"
 
 # Copy all repos in a folder
 gitmig C:\Projects D:\Backup
@@ -116,8 +120,9 @@ Calculates and displays the size of the `.git` folder for all found repositories
 | **IDEs** | `.idea`, `.vscode` |
 | **Python** | `__pycache__`, `venv`, `.venv`, `*.egg-info` |
 | **Node** | `node_modules`, `.next`, `.nuxt` |
+| **Android** | `.gradle`, `.kotlin`, `.cxx`, `captures`, `externalNativeBuild` |
 | **Build** | `dist`, `build`, `target`, `bin`, `obj` |
-| **Files** | `*.log`, `*.pyc`, `*.exe`, `*.dll` |
+| **Files** | `*.log`, `*.pyc`, `*.exe`, `*.dll`, `local.properties`, `*.apk`, `*.aab`, `*.dex` |
 
 ### Always Preserved
 
@@ -131,6 +136,9 @@ Calculates and displays the size of the `.git` folder for all found repositories
 ```bash
 # Preview backup
 gitmig D:\Backup --dry-run
+
+# Android repo copy without build noise
+gitmig ./backup --only "android-app"
 
 # Zip archives with stats
 gitmig ./backup --zip --stats

@@ -10,7 +10,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.8+-blue?logo=python" alt="Python">
-  <img src="https://img.shields.io/badge/Version-1.1.0-green" alt="Version">
+  <img src="https://img.shields.io/badge/Version-1.2.0-green" alt="Version">
   <img src="https://img.shields.io/badge/License-TSL-red" alt="License">
 </p>
 
@@ -31,6 +31,7 @@ All tools share:
 - 🔒 **Zero Dependencies** — Pure Python standard library
 - 🌲 **Git-Aware** — Respects `.gitignore` automatically
 - ⚡ **Eager Pruning** — Skips heavy folders before scanning
+- 🤖 **Android-Friendly** — Handles Android/Gradle repos without extra flags
 
 ---
 
@@ -73,6 +74,7 @@ rtree -o                 # Save to file
 locr                     # Count current directory
 locr src --color         # With syntax highlighting
 locr --stats             # Show percentages
+locr app --stats         # Analyze an Android app module
 locr --json              # Output as JSON
 locr -o report.txt       # Save report
 ```
@@ -82,6 +84,7 @@ locr -o report.txt       # Save report
 ```bash
 gitmig ./backup          # Copy all repos to backup
 gitmig --dry-run         # Preview what would be copied
+gitmig ./backup --only "android-app"  # Copy an Android repo without build artifacts
 gitmig --zip             # Create .zip archives
 gitmig --stats           # Show file type breakdown
 gitmig --git-size        # Show .git folder sizes

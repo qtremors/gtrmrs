@@ -88,6 +88,42 @@ LANGUAGES = {
         "single": "//",
         "multi": ("/*", "*/"),
     },
+    ".kt": {
+        "name": "Kotlin",
+        "color": Colors.MAGENTA,
+        "single": "//",
+        "multi": ("/*", "*/"),
+    },
+    ".kts": {
+        "name": "Kotlin Script",
+        "color": Colors.MAGENTA,
+        "single": "//",
+        "multi": ("/*", "*/"),
+    },
+    ".gradle": {
+        "name": "Gradle",
+        "color": Colors.GREEN,
+        "single": "//",
+        "multi": ("/*", "*/"),
+    },
+    ".aidl": {
+        "name": "AIDL",
+        "color": Colors.CYAN,
+        "single": "//",
+        "multi": ("/*", "*/"),
+    },
+    ".pro": {
+        "name": "ProGuard",
+        "color": Colors.YELLOW,
+        "single": "#",
+        "multi": None,
+    },
+    ".properties": {
+        "name": "Properties",
+        "color": Colors.WHITE,
+        "single": "#",
+        "multi": None,
+    },
     # Systems (Cyan/Red)
     ".go": {"name": "Go", "color": Colors.CYAN, "single": "//", "multi": ("/*", "*/")},
     ".rs": {"name": "Rust", "color": Colors.RED, "single": "//", "multi": ("/*", "*/")},

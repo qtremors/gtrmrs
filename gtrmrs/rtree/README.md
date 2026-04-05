@@ -9,6 +9,7 @@
 ## Features
 
 - 🌲 **Git-Aware** — Automatically respects `.gitignore` rules
+- 🤖 **Android-Friendly** — Hides Gradle and Android build folders by default
 - 🎨 **Smart Colors** — Blue for directories, Green for files, Yellow for configs
 - 📏 **Depth Control** — Limit recursion depth for large projects
 - 🔄 **Multiple Modes** — ASCII tree, flat list, or raw (unfiltered)
@@ -73,7 +74,7 @@ rtree --raw --depth 2
 ## How It Works
 
 1. **Initialization** — Reads `.gitignore` from target directory
-2. **Eager Pruning** — Skips heavy folders (`node_modules`, `venv`) immediately
+2. **Eager Pruning** — Skips heavy folders (`node_modules`, `venv`, `.gradle`, `build`) immediately
 3. **Git Precision** — Uses `git check-ignore` for remaining files
 4. **Rendering** — Generates ASCII tree with proper indentation
 

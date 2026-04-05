@@ -1,6 +1,6 @@
 # gtrmrs — Complete Command Reference
 
-> **Version:** 1.0.0  
+> **Version:** 1.2.0  
 > All commands can be called directly (`rtree`) or via umbrella (`gtrmrs rtree`).
 
 ---
@@ -320,7 +320,7 @@ All subcommands accessible via `gtrmrs`:
 ### Version Info
 
 ```bash
-gtrmrs --version      # gtrmrs 1.0.0
+gtrmrs --version      # gtrmrs 1.2.0
 gtrmrs rtree --version
 gtrmrs locr --version
 gtrmrs gitmig --version
