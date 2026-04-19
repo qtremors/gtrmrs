@@ -1,5 +1,9 @@
 # gtrmrs - Changelog
 
+## [0.0.8] - 2026-04-19
+
+- Update the project license and its usage terms.
+
 ## [0.0.7] - 2026-04-19
 
 - Add `locr --top` to show the 15 largest source files by total lines in terminal and JSON reports.

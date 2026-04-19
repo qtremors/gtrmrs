@@ -1,6 +1,6 @@
 # Development
 
-> **Version:** 0.0.7
+> **Version:** 0.0.8
 >
 > **Last Updated:** 2026-04-19
 
