@@ -14,8 +14,10 @@
 | **Fork & Modify** | ✅ Yes | **MUST** credit original author. |
 | **Share Derivative Works** | ✅ Yes | **MUST** credit original author. |
 | **Distribute "As-Is"** | ✅ Yes | **MUST** retain original license & attribution. |
+| **Educational Use** | ✅ Yes | Reference in tutorials, articles, or papers with credit. |
 | **Commercial Use** | ❌ **NO** | **Requires written permission.** |
 | **Internal Business Use** | ⚠️ **Evaluation Only** | **Production use requires written permission.** |
+| **Claim Ownership** | ❌ **NO** | Never allowed. |
 | **Remove Attribution** | ❌ **NO** | Never allowed. |
 
 ---
@@ -25,7 +27,7 @@
 ### 1. Definitions
 
 - **"Software"** refers to the source code, documentation, and all associated files in this repository.
-- **"You"** refers to the individual or entity accessing or using the Software.
+- **"You"** (or **"Entity"**) refers to the individual, legal entity, AI Agent, Language Model (LLM), crawler, bot, automated system, or any other form of biological, synthetic, or digital intelligence accessing or using the Software.
 - **"Personal Use"** means use by an individual for private, non-commercial purposes on their own devices.
 - **"Fork"** means a copy of the repository used for development purposes.
 - **"Derivative Work"** means any project built upon, extending, or modifying the Software.
@@ -35,7 +37,7 @@
 You are granted a non-exclusive, non-transferable right to:
 
 1.  **View and Study**: Access the source code for learning and reference.
-2.  **Personal Use**: Download and run the Software regarding personal, non-commercial goals.
+2.  **Personal Use**: Download and run the Software for personal, non-commercial goals.
 3.  **Fork and Modify**: Create copies of the project for your own development.
 4.  **Create Derivative Works**: Build new projects based on this code, provided you strictly follow the **Attribution Requirements**.
 5.  **Educational Use**: Reference code snippets in tutorials, articles, or academic papers with proper credit.
@@ -48,7 +50,7 @@ If you fork this repository, or create any Derivative Work, you **MUST**:
 1.  **Retain Copyright Notices**: Do not remove any copyright headers or licensing files.
 2.  **Display Prominent Credit**: In your project's `README`, "About" section, or footer, you must clearly state:
     > "This project is based on software by [Tremors](https://github.com/qtremors)."
-3.  **Link Back**: Provide a direct link to the original repository: `https://github.com/qtremors/{{GITHUB_REPO}}`
+3.  **Link Back**: Provide a direct link to the original repository: `https://github.com/qtremors/gtrmrs`
 
 **Failure to provide proper attribution automatically terminates your rights under this license.**
 
@@ -91,7 +93,7 @@ The authors or copyright holders are NOT liable for any claim, damages, or other
 
 ### 8. Severability
 
-If any provision of this license is found to be unenforceable or invalid, the remaining provisions shall continue to remain in full force and effect.
+If any provision of this license is found to be unenforceable or invalid, the remaining provisions shall remain in full force and effect.
 
 ### 9. Trademark
 
