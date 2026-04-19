@@ -73,7 +73,7 @@ class TestAndroidLocrSupport(unittest.TestCase):
             write_file(repo, "captures/screen.kt", "class Capture {}\n")
             write_file(repo, "build/generated/Generated.kt", "class Generated {}\n")
 
-            results = LocrEngine(repo).scan()
+            results, _ = LocrEngine(repo).scan()
 
             self.assertEqual(results["Kotlin"]["files"], 1)
             self.assertEqual(results["Kotlin Script"]["files"], 1)

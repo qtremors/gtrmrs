@@ -48,6 +48,7 @@ locr -o
 | `path` | | Target directory (defaults to current) |
 | `--color` | `-c` | Enable colored output |
 | `--stats` | `-s` | Show percentage statistics |
+| `--top` | `-t` | Show top 15 largest files |
 | `--json` | | Output as JSON |
 | `--raw` | | Ignore .gitignore rules |
 | `--out` | `-o` | Save to file |
@@ -84,6 +85,9 @@ locr -o
 ```bash
 # Detailed stats with color
 locr src --color --stats
+
+# Show largest files
+locr --top
 
 # Android app module + Gradle files
 locr app --stats

@@ -1,6 +1,6 @@
 # gtrmrs — Complete Command Reference
 
-> **Version:** 1.2.0  
+> **Version:** 1.3.0  
 > All commands can be called directly (`rtree`) or via umbrella (`gtrmrs rtree`).
 
 ---
@@ -132,6 +132,10 @@ locr -c
 # Show percentage statistics
 locr --stats
 locr -s
+
+# Show top 15 largest files
+locr --top
+locr -t
 
 # Color + stats
 locr --color --stats
@@ -320,7 +324,7 @@ All subcommands accessible via `gtrmrs`:
 ### Version Info
 
 ```bash
-gtrmrs --version      # gtrmrs 1.2.0
+gtrmrs --version      # gtrmrs 1.3.0
 gtrmrs rtree --version
 gtrmrs locr --version
 gtrmrs gitmig --version

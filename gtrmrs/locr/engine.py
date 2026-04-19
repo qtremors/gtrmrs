@@ -154,7 +154,7 @@ class LocrEngine:
 
         return final_list
 
-    def scan(self, callback: Optional[Callable[[], None]] = None) -> Dict:
+    def scan(self, callback: Optional[Callable[[], None]] = None) -> Tuple[Dict, List[Dict]]:
         """Scan repository and count lines of code."""
         results = defaultdict(
             lambda: {
@@ -165,6 +165,7 @@ class LocrEngine:
                 "color": Colors.WHITE,
             }
         )
+        file_results = []
         self.was_interrupted = False
 
         try:
@@ -190,10 +191,17 @@ class LocrEngine:
                     results[name]["code"] += k
                     results[name]["color"] = lang_def.get("color", Colors.WHITE)
 
+                    file_results.append({
+                        "path": rel_path,
+                        "blank": b,
+                        "comment": c,
+                        "code": k
+                    })
+
         except KeyboardInterrupt:
             self.was_interrupted = True
 
-        return results
+        return results, file_results
 
     def _analyze_file(
         self, filepath: str, lang_def: dict

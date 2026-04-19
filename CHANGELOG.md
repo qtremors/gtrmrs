@@ -1,8 +1,24 @@
 # gtrmrs — Changelog
 
 > **Project:** gtrmrs (unified CLI)
-> **Version:** 1.2.0
-> **Last Updated:** 05-04-2026
+> **Version:** 1.3.0
+> **Last Updated:** 19-04-2026
+
+---
+
+## [1.3.0] — 19-04-2026
+
+### Added
+
+- **locr**: New `--top` / `-t` flag
+  - Displays a table of the top 15 largest files (by total line count)
+  - Features smart path truncation and column alignment
+  - Includes `top_files` section in JSON output when requested
+
+### Fixed
+
+- **locr**: Resolved several missing typing and standard library imports in `cli.py`
+- **locr**: Corrected output table formatting issues with long file paths
 
 ---
 
