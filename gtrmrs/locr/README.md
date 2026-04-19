@@ -9,6 +9,7 @@ locr --stats
 locr --raw
 locr --json --out counts.json
 locr --no-color
+locr --top
 ```
 
 Output paths use the shell working directory. Counting is lexical, not a compiler.

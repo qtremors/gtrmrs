@@ -1,5 +1,9 @@
 # gtrmrs - Changelog
 
+## [0.0.7] - 2026-04-19
+
+- Add `locr --top` to show the 15 largest source files by total lines in terminal and JSON reports.
+
 ## [0.0.6] - 2026-04-05
 
 - Count mixed comment/code lines, Python strings and docstrings, and nested Kotlin, Rust and Swift block comments accurately.
