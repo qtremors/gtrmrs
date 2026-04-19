@@ -1,21 +1,21 @@
 # gtrmrs — Tasks
 
 > **Project:** gtrmrs
-> **Version:** 1.1.0
-> **Last Updated:** 18-02-2026
+> **Version:** 1.3.0
+> **Last Updated:** 19-04-2026
 
 ---
 
 ## Bugs
 
-- [ ] **`locr/cli.py` missing `List` import**
+- [x] **`locr/cli.py` missing `List` import**
   - `generate_report()` return type annotation uses `List[str]` (line 39), but `List` is not imported from `typing` — only `Dict` is imported
-  - Will crash at runtime if type checking is enforced, and is a static analysis error
+  - Resolved: Added `List`, `Dict`, and `Tuple` imports.
 
-- [ ] **`locr/cli.py` color flag inconsistency with actual code**
+- [x] **`locr/cli.py` color flag inconsistency with actual code**
   - README and COMMANDS.md document `--color` / `-c` as the flag to enable color
   - Actual CLI code only has `--no-color` (opt-out), there is no `--color` / `-c` flag
-  - locr README arguments table lists `--color | -c | Enable colored output` — these flags don't exist
+  - Resolved: Added `--color` and `-c` to the parser (though it remains on by default in terminal, the flags are now accepted as documented).
 
 - [ ] **`locr/engine.py` callback signature mismatch**
   - `scan()` declares `callback: Optional[Callable[[], None]]` (no args)
@@ -61,9 +61,8 @@
 
 ## Inconsistencies
 
-- [ ] **Version mismatch in `COMMANDS.md`**
-  - `COMMANDS.md` header says `Version: 1.0.0`
-  - All other docs (README, CHANGELOG, DEVELOPMENT, TASKS, `__init__.py`) say `1.1.0`
+- [x] **Version mismatch in `COMMANDS.md`**
+  - Resolved: Header now correctly shows `1.3.0`.
 
 - [ ] **`locr` color behavior is inverted vs doc**
   - COMMANDS.md, locr README, and main README document `locr --color` to enable color
@@ -152,14 +151,12 @@
 
 ## Documentation
 
-- [ ] **COMMANDS.md `gtrmrs --version` shows `1.0.0`**
-  - Example output `gtrmrs 1.0.0` should be `gtrmrs 1.1.0`
+- [x] **COMMANDS.md `gtrmrs --version` shows `1.3.0`**
+  - Resolved: Example output and header now show `1.3.0`.
 
-- [ ] **`locr/README.md` documents `--color` / `-c` flag that doesn't exist**
+- [x] **`locr/README.md` documents `--color` / `-c` flag that doesn't exist**
   - Arguments table lists `--color | -c | Enable colored output`
-  - Main README also shows `locr src --color`
-  - COMMANDS.md shows `locr --color` and `locr -c`
-  - Actual code: only `--no-color` exists
+  - Resolved: Added the flags to the CLI.
 
 - [ ] **`gitmig/README.md` references non-existent `config.py`**
   - Module structure lists `config.py — Preserve patterns`

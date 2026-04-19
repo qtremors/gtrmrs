@@ -5,8 +5,6 @@ CLI interface for locr subcommand.
 Lines of code counter with language-specific breakdown.
 """
 
-from __future__ import annotations
-
 import argparse
 import itertools
 import json
@@ -14,7 +12,7 @@ import os
 import shutil
 import sys
 import time
-from typing import Dict
+from typing import Dict, List, Tuple
 
 from gtrmrs.core.colors import Colors
 from gtrmrs.locr.engine import LocrEngine
@@ -26,16 +24,20 @@ from gtrmrs import __version__
 # Constants
 WIDTH_STATS = 78
 WIDTH_SIMPLE = 72
+WIDTH_TOP = 80
 FMT_STATS = "{:<20} {:>12} {:>14} {:>14} {:>14}"
 FMT_SIMPLE = "{:<22} {:>10} {:>12} {:>12} {:>12}"
+FMT_TOP = "{:<38} {:>8} {:>10} {:>10} {:>10}"
 
 
 def generate_report(
     results: Dict,
+    file_results: List[Dict],
     elapsed_time: float,
     use_color: bool,
     interrupted: bool,
     show_stats: bool,
+    show_top: bool = False,
 ) -> List[str]:
     """Generate text report from scan results."""
     lines = []
@@ -158,6 +160,11 @@ def generate_report(
         )
 
     lines.append(Colors.style(sep, Colors.WHITE, use_color))
+
+    # Top Files Section
+    if show_top and file_results:
+        lines.extend(generate_top_files_report(file_results, use_color))
+
     time_str = f"Processed {total_files} files in {elapsed_time:.3f} seconds."
     lines.append(Colors.style(time_str, Colors.CYAN, use_color))
     lines.append("")
@@ -165,8 +172,59 @@ def generate_report(
     return lines
 
 
+def generate_top_files_report(file_results: List[Dict], use_color: bool) -> List[str]:
+    """Generate the 'Top 15 Largest Files' section."""
+    lines = []
+    
+    # Sort by total lines (blank + comment + code) descending
+    sorted_files = sorted(
+        file_results,
+        key=lambda x: x["blank"] + x["comment"] + x["code"],
+        reverse=True
+    )[:15]
+
+    sep = "=" * WIDTH_TOP
+    thin_sep = "-" * WIDTH_TOP
+
+    lines.append("")
+    lines.append(Colors.style(sep, Colors.WHITE, use_color))
+    lines.append(
+        Colors.style(
+            FMT_TOP.format("Top 15 Largest Files", "Blank", "Comment", "Code", "Total"),
+            Colors.BOLD,
+            use_color,
+        )
+    )
+    lines.append(Colors.style(thin_sep, Colors.WHITE, use_color))
+
+    for f in sorted_files:
+        total = f["blank"] + f["comment"] + f["code"]
+        path = f["path"]
+        
+        # Truncate path if too long
+        if len(path) > 38:
+            path = "..." + path[-35:]
+            
+        lines.append(
+            Colors.style(
+                FMT_TOP.format(
+                    path, f["blank"], f["comment"], f["code"], total
+                ),
+                Colors.WHITE,
+                use_color,
+            )
+        )
+
+    lines.append(Colors.style(sep, Colors.WHITE, use_color))
+    return lines
+
+
 def generate_json_report(
-    results: Dict, elapsed_time: float, interrupted: bool
+    results: Dict, 
+    file_results: List[Dict],
+    elapsed_time: float, 
+    interrupted: bool,
+    include_top: bool = False
 ) -> str:
     """Generate JSON report from scan results."""
     total_files = sum(s["files"] for s in results.values())
@@ -198,6 +256,14 @@ def generate_json_report(
             "comment": s["comment"],
             "code": s["code"],
         }
+
+    if include_top:
+        sorted_files = sorted(
+            file_results,
+            key=lambda x: x["blank"] + x["comment"] + x["code"],
+            reverse=True
+        )[:15]
+        output["top_files"] = sorted_files
 
     return json.dumps(output, indent=2)
 
@@ -254,6 +320,11 @@ def _configure_parser(parser: argparse.ArgumentParser) -> None:
         help="Show percentage statistics.",
     )
     parser.add_argument(
+        "--top", "-t",
+        action="store_true",
+        help="Show top 15 largest files by line count.",
+    )
+    parser.add_argument(
         "--json",
         action="store_true",
         help="Output results in JSON format.",
@@ -305,7 +376,7 @@ def run(args: argparse.Namespace) -> None:
 
     try:
         engine = LocrEngine(target_path, raw_mode=args.raw)
-        results = engine.scan(callback=update_spinner)
+        results, file_results = engine.scan(callback=update_spinner)
 
         if spinner_active:
             w = shutil.get_terminal_size().columns
@@ -329,10 +400,12 @@ def run(args: argparse.Namespace) -> None:
     if not args.json:
         report_lines = generate_report(
             results,
+            file_results,
             end_time - start_time,
             use_color,
             engine.was_interrupted,
             show_stats=args.stats,
+            show_top=args.top,
         )
 
     if is_writing_file:
@@ -344,15 +417,17 @@ def run(args: argparse.Namespace) -> None:
         try:
             if args.json:
                 content = generate_json_report(
-                    results, end_time - start_time, engine.was_interrupted
+                    results, file_results, end_time - start_time, engine.was_interrupted, include_top=args.top
                 )
             else:
                 clean_lines = generate_report(
                     results,
+                    file_results,
                     end_time - start_time,
                     False,
                     engine.was_interrupted,
                     show_stats=args.stats,
+                    show_top=args.top,
                 )
                 content = "\n".join(clean_lines) + "\n"
 
@@ -365,7 +440,7 @@ def run(args: argparse.Namespace) -> None:
         if args.json:
             print(
                 generate_json_report(
-                    results, end_time - start_time, engine.was_interrupted
+                    results, file_results, end_time - start_time, engine.was_interrupted, include_top=args.top
                 )
             )
         else:
