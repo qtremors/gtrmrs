@@ -309,6 +309,11 @@ def _configure_parser(parser: argparse.ArgumentParser) -> None:
         help="Ignore .gitignore rules.",
     )
     parser.add_argument(
+        "--tests",
+        action="store_true",
+        help="Only count lines of code in test files.",
+    )
+    parser.add_argument(
         "--out", "-o",
         nargs="?",
         const=True,
@@ -375,7 +380,7 @@ def run(args: argparse.Namespace) -> None:
         sys.stdout.write(Colors.HIDE_CURSOR)
 
     try:
-        engine = LocrEngine(target_path, raw_mode=args.raw)
+        engine = LocrEngine(target_path, raw_mode=args.raw, tests_only=args.tests)
         results, file_results = engine.scan(callback=update_spinner)
 
         if spinner_active:

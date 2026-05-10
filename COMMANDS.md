@@ -1,8 +1,8 @@
 # Command Guide
 
-> **Version:** 0.0.8
+> **Version:** 0.0.9
 >
-> **Last Updated:** 2026-04-19
+> **Last Updated:** 2026-05-10
 
 Commands operate on the current directory unless a path is supplied. Output
 filenames are relative to the shell's working directory. Use sibling destinations
@@ -29,6 +29,7 @@ locr --json
 locr --out counts.txt
 locr --no-color
 locr --top
+locr --tests --stats
 ```
 
 [LOC guide](gtrmrs/locr/README.md)

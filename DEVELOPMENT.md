@@ -1,8 +1,8 @@
 # Development
 
-> **Version:** 0.0.8
+> **Version:** 0.0.9
 >
-> **Last Updated:** 2026-04-19
+> **Last Updated:** 2026-05-10
 
 Use Python 3.11+ and Git. Runtime code uses the standard library. Installation
 uses pip and setuptools as build tooling.

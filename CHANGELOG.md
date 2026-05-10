@@ -1,5 +1,9 @@
 # gtrmrs - Changelog
 
+## [0.0.9] - 2026-05-10
+
+- Add `locr --tests` and combine it with statistics, JSON output and largest-file reports.
+
 ## [0.0.8] - 2026-04-19
 
 - Update the project license and its usage terms.
