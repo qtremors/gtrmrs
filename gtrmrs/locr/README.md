@@ -51,6 +51,7 @@ locr -o
 | `--top` | `-t` | Show top 15 largest files |
 | `--json` | | Output as JSON |
 | `--raw` | | Ignore .gitignore rules |
+| `--tests` | | Count only lines of code in test files |
 | `--out` | `-o` | Save to file |
 | `--version` | | Show version |
 

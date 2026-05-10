@@ -1,8 +1,18 @@
 # gtrmrs — Changelog
 
 > **Project:** gtrmrs (unified CLI)
-> **Version:** 1.3.0
-> **Last Updated:** 19-04-2026
+> **Version:** 1.4.0
+> **Last Updated:** 10-05-2026
+
+---
+
+## [1.4.0] — 10-05-2026
+
+### Added
+
+- **locr**: New `--tests` flag
+  - Counts only lines of code in test files
+  - Automatically identifies test files across Android, Web, Desktop and generic projects by directory naming (e.g. `tests`, `spec`) and filename patterns (e.g. `_test.py`, `*Spec.js`)
 
 ---
 

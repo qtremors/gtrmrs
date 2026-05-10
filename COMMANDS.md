@@ -1,6 +1,6 @@
 # gtrmrs — Complete Command Reference
 
-> **Version:** 1.3.0  
+> **Version:** 1.4.0  
 > All commands can be called directly (`rtree`) or via umbrella (`gtrmrs rtree`).
 
 ---
@@ -166,6 +166,16 @@ locr --raw
 
 # Raw with stats
 locr --raw --stats
+```
+
+### Test Files Only
+
+```bash
+# Count only test files
+locr --tests
+
+# Test files with stats
+locr --tests --stats
 ```
 
 ### Full Examples
