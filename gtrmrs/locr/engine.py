@@ -27,9 +27,10 @@ from gtrmrs.locr.languages import LANGUAGES
 class LocrEngine:
     """Lines of code counter with Git-aware scanning."""
 
-    def __init__(self, repo_path: str, raw_mode: bool = False):
+    def __init__(self, repo_path: str, raw_mode: bool = False, tests_only: bool = False):
         self.repo_path = os.path.abspath(repo_path)
         self.raw_mode = raw_mode
+        self.tests_only = tests_only
         self.was_interrupted = False
 
         # Load patterns for eager pruning
@@ -81,6 +82,30 @@ class LocrEngine:
     def _git_check_ignore(self, relpaths: List[str]) -> Set[str]:
         """Use git check-ignore for accurate filtering."""
         return git_check_ignore(self.repo_path, relpaths)
+
+    def _is_test_file(self, rel_path: str) -> bool:
+        """Determine if a file is a test file based on its path or name."""
+        parts = rel_path.replace('\\', '/').split('/')
+        dir_parts = [p.lower() for p in parts[:-1]]
+        test_dirs = {'test', 'tests', '__tests__', 'spec', 'specs', 'androidtest', 'testlib', 'testing'}
+        if any(d in test_dirs for d in dir_parts):
+            return True
+        
+        filename = parts[-1]
+        name_without_ext = os.path.splitext(filename)[0]
+        lower_name = name_without_ext.lower()
+        
+        if lower_name.startswith('test_') or lower_name.startswith('test-'):
+            return True
+            
+        for suffix in ('_test', '-test', '.test', '_spec', '-spec', '.spec'):
+            if lower_name.endswith(suffix):
+                return True
+                
+        if name_without_ext.endswith('Test') or name_without_ext.endswith('Tests') or name_without_ext.endswith('Spec'):
+            return True
+            
+        return False
 
     def _collect_and_filter_files(
         self, callback: Optional[Callable[[], None]] = None
@@ -150,6 +175,8 @@ class LocrEngine:
 
         for p in all_rel_paths:
             if p not in ignored_by_git:
+                if self.tests_only and not self._is_test_file(p):
+                    continue
                 final_list.append(p)
 
         return final_list
