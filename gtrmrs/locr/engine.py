@@ -15,11 +15,13 @@ from typing import Callable, Dict, List, Optional, Set, Tuple
 
 from gtrmrs.core.colors import Colors
 
-from gtrmrs.core.patterns import EXCLUDE_DIRS
+from gtrmrs.core.patterns import EXCLUDE_DIRS, EXCLUDE_FILE_PATTERNS
 from gtrmrs.core.git_utils import (
     is_git_repo,
     git_check_ignore,
     simple_gitignore_match,
+    should_eager_prune,
+    compile_gitignore_patterns,
 )
 from gtrmrs.locr.languages import LANGUAGES
 
@@ -40,38 +42,20 @@ class LocrEngine:
 
     def _load_default_patterns(self) -> List[Tuple[str, bool, bool]]:
         """Load default patterns plus .gitignore for fast pruning."""
-        patterns = list(EXCLUDE_DIRS)
-        gitignore_path = os.path.join(self.repo_path, ".gitignore")
-        
-        if os.path.exists(gitignore_path):
-            try:
-                with open(gitignore_path, "r", encoding="utf-8", errors="ignore") as f:
-                    for line in f:
-                        line = line.strip()
-                        if line and not line.startswith("#"):
-                            patterns.append(line)
-            except PermissionError:
-                pass
+        compiled: List[Tuple[str, bool, bool]] = []
+        for d in EXCLUDE_DIRS:
+            compiled.append((d, False, True))
 
-        # Compile for fnmatch
-        compiled = []
-        for raw in patterns:
-            p = raw.strip()
-            is_dir = p.endswith("/")
-            if is_dir:
-                p = p[:-1]
-            anchored = p.startswith("/")
-            if anchored:
-                p = p[1:]
-            p = p.replace("\\", "/")
-            compiled.append((p, is_dir, anchored))
+        gitignore_path = os.path.join(self.repo_path, ".gitignore")
+        if os.path.exists(gitignore_path):
+            compiled.extend(compile_gitignore_patterns(gitignore_path))
+
         return compiled
 
     def _simple_gitignore_match(
-        self, relpath: str, patterns: List[Tuple[str, bool, bool]]
+        self, relpath: str, patterns: List[Tuple[str, bool, bool]], is_dir: bool = False
     ) -> bool:
         """Simple pattern matching for eager pruning."""
-        is_dir = relpath.endswith("/")
         clean_path = relpath.rstrip("/")
         return simple_gitignore_match(clean_path, patterns, is_dir)
 
@@ -133,11 +117,11 @@ class LocrEngine:
                     # Eager pruning
                     active_dirs = []
                     for d in dirnames:
-                        if d == ".git":
+                        if d == ".git" or should_eager_prune(d):
                             continue
                         path_to_check = (rel_dir + "/" + d) if rel_dir else d
                         if not self._simple_gitignore_match(
-                            path_to_check, self.simple_patterns
+                            path_to_check, self.simple_patterns, is_dir=True
                         ):
                             active_dirs.append(d)
                     dirnames[:] = active_dirs
@@ -147,6 +131,10 @@ class LocrEngine:
                     ext = os.path.splitext(f)[1].lower()
                     if ext not in LANGUAGES:
                         continue
+
+                    if not self.raw_mode:
+                        if any(fnmatch.fnmatch(f, pat) for pat in EXCLUDE_FILE_PATTERNS):
+                            continue
 
                     rel_path = (rel_dir + "/" + f if rel_dir else f).replace(
                         os.sep, "/"

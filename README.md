@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="gtrmrs.png" alt="gtrmrs Logo" width="120" style="border-radius: 20px;"/>
+  <img src="gtrmrs.svg" alt="gtrmrs Logo" width="120" style="border-radius: 20px;"/>
 </p>
 
 <h1 align="center"><a href="https://github.com/qtremors/gtrmrs">gtrmrs</a></h1>
@@ -10,7 +10,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.8+-blue?logo=python" alt="Python">
-  <img src="https://img.shields.io/badge/Version-1.4.0-green" alt="Version">
+  <img src="https://img.shields.io/badge/Version-1.5.0-green" alt="Version">
   <img src="https://img.shields.io/badge/License-TSL-red" alt="License">
 </p>
 
@@ -37,8 +37,10 @@ All tools share:
 
 ## 🚀 Quick Start
 
-```bash
-# Clone and install
+> **Note:** `gtrmrs` is a local tool suite and is not published on PyPI or package managers. Install directly from local source.
+
+```sh
+# Clone and install locally
 git clone https://github.com/qtremors/gtrmrs.git
 cd gtrmrs
 pip install -e .
@@ -46,11 +48,13 @@ pip install -e .
 # Now use directly
 rtree
 locr
+deps
 gitmig ./backup --dry-run
 
 # Or via umbrella command
 gtrmrs rtree
 gtrmrs locr
+gtrmrs deps
 gtrmrs gitmig ./backup
 ```
 

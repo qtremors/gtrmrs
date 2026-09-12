@@ -2,7 +2,7 @@
 cli.py
 
 Main entry point for gtrmrs unified CLI.
-Routes to subcommands: rtree, locr, gitmig.
+Routes to subcommands: rtree, locr, gitmig, deps.
 """
 
 from __future__ import annotations
@@ -15,6 +15,12 @@ from gtrmrs import __version__
 
 def main() -> None:
     """Main entry point for gtrmrs command."""
+    if hasattr(sys.stdout, "reconfigure"):
+        try:
+            sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        except Exception:
+            pass
+
     parser = argparse.ArgumentParser(
         prog="gtrmrs",
         description="Unified CLI tools for Git repository management.",
@@ -35,10 +41,12 @@ def main() -> None:
     from gtrmrs.rtree.cli import add_parser as add_rtree
     from gtrmrs.locr.cli import add_parser as add_locr
     from gtrmrs.gitmig.cli import add_parser as add_gitmig
+    from gtrmrs.deps.cli import add_parser as add_deps
 
     add_rtree(subparsers)
     add_locr(subparsers)
     add_gitmig(subparsers)
+    add_deps(subparsers)
 
     # Parse arguments
     args = parser.parse_args()

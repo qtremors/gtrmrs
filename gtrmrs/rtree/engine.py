@@ -20,6 +20,7 @@ from gtrmrs.core.git_utils import (
     is_git_repo,
     git_check_ignore,
     simple_gitignore_match,
+    compile_gitignore_patterns,
 )
 
 
@@ -141,27 +142,7 @@ class RepoTreeVisualizer:
     def _read_and_compile_gitignore(self) -> List[Tuple[str, bool, bool]]:
         """Read .gitignore and return compiled patterns."""
         path = os.path.join(self.repo_path, ".gitignore")
-        if not os.path.isfile(path):
-            return []
-            
-        patterns = []
-        try:
-            with open(path, "r", encoding="utf-8", errors="ignore") as f:
-                for line in f:
-                    line = line.strip()
-                    if not line or line.startswith("#"):
-                        continue
-                    
-                    # Compile simple logic (same as engine logic)
-                    is_dir = line.endswith("/")
-                    if is_dir: line = line[:-1]
-                    anchored = line.startswith("/")
-                    if anchored: line = line[1:]
-                    line = line.replace("\\", "/")
-                    patterns.append((line, is_dir, anchored))
-        except OSError:
-            pass
-        return patterns
+        return compile_gitignore_patterns(path)
 
     def get_ascii_tree(self) -> List[str]:
         """Generate ASCII tree from cached visible paths."""

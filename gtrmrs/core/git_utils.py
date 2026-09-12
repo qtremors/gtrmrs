@@ -17,10 +17,22 @@ from typing import Callable, List, Optional, Set, Tuple
 from gtrmrs.core.patterns import EXCLUDE_DIRS
 
 
+def find_git_root(path: str) -> Optional[str]:
+    """Find the root of the Git repository containing path, or None."""
+    curr = os.path.abspath(path)
+    while True:
+        if os.path.isdir(os.path.join(curr, ".git")):
+            return curr
+        parent = os.path.dirname(curr)
+        if parent == curr:
+            break
+        curr = parent
+    return None
+
+
 def is_git_repo(path: str) -> bool:
     """Check if the given path is inside a Git repository."""
-    git_dir = os.path.join(path, ".git")
-    return os.path.isdir(git_dir)
+    return find_git_root(path) is not None
 
 
 def git_check_ignore(repo_path: str, relpaths: List[str]) -> Set[str]:

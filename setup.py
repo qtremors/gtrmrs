@@ -5,6 +5,7 @@ A collection of Git-aware utilities:
 - rtree: Directory tree visualization
 - locr: Lines of code counter
 - gitmig: Repository copy without dependencies
+- deps: Multi-repository dependency auditor and updater
 """
 
 import re
@@ -30,6 +31,7 @@ setup(
             "rtree=gtrmrs.rtree.cli:main",
             "locr=gtrmrs.locr.cli:main",
             "gitmig=gtrmrs.gitmig.cli:main",
+            "deps=gtrmrs.deps.cli:main",
         ],
     },
     classifiers=[
