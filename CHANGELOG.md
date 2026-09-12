@@ -1,5 +1,23 @@
 # gtrmrs - Changelog
 
+## [0.1.0] - 2026-09-12
+
+- Add `deps` to compare Gradle catalogs, wrapper versions and statically declared SDK levels across repositories, with text, HTML and JSON reports.
+- Discover catalog-free Gradle projects and describe checked, skipped, unavailable and unsupported dependency coverage explicitly.
+- Parse full TOML and Gradle wrapper properties, retain rich constraints and versionless declarations, and recognize Android application and library modules.
+- Compare version qualifiers and build metadata consistently; query stable upstream releases without relying on registry response order.
+- Validate dependency updates, refuse shared-version conflicts and stale edits, preserve line endings, and replace files atomically.
+- Preserve Gradle distribution URL options and refresh pinned checksums, leaving files unchanged when checksum retrieval or validation fails.
+- Escape report content, show unknown SDK values accurately, keep JSON separate from progress, and report update, output and browser failures clearly.
+- Use the scanner that discovered a component to determine its category.
+- Add `storage` reports, Rust build breakdowns, JSON export and cleanup previews with explicit confirmation before deletion.
+- Protect tracked files, releases, credentials, models and recovery data during cleanup; add repeatable `--keep` patterns and recheck selected files before deletion.
+- Keep LOC test filters active in raw scans, mark incomplete reports, and report unreadable files and failed output writes.
+- Configure both CLI output streams for Unicode, and honor plain-output settings across commands.
+- Redesign the website with concise tool previews, wrapping controls, keyboard navigation and a simpler installation section.
+- Update all command guides, installation requirements and project coverage notes; remove completed task lists and obsolete audit reports.
+- Keep the test package out of installed tools.
+
 ## [0.0.9] - 2026-05-10
 
 - Add `locr --tests` and combine it with statistics, JSON output and largest-file reports.

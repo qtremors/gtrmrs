@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" width="1000" height="1000" fill="none">
+  <!-- Folder Outline (Official Python Blue) -->
+  <path fill="#306998" fill-rule="evenodd" d="M 208 211 H 430 L 472 262 H 805 V 789 H 208 V 544 H 245 V 752 H 767 V 363 H 245 V 457 H 208 Z" />
+
+  <!-- Horizontal Git Trunk (Official Python Yellow) -->
+  <line x1="208" y1="500" x2="669" y2="500" stroke="#FFD43B" stroke-width="39" stroke-linecap="butt" />
+
+  <!-- Curved Git Branch (Official Python Yellow) -->
+  <path d="M 398 500 A 50.5 50.5 0 0 1 448.5 550.5 L 448.5 595.5 A 47.5 47.5 0 0 0 496 643 L 581 643"
+        stroke="#FFD43B" stroke-width="39" stroke-linecap="butt" stroke-linejoin="round" />
+
+  <!-- Git Commit Nodes (Official Git Red-Orange) -->
+  <circle cx="342.5" cy="500" r="56" fill="#F05133" />
+  <circle cx="669" cy="500" r="56" fill="#F05133" />
+  <circle cx="580.5" cy="643" r="56" fill="#F05133" />
+</svg>

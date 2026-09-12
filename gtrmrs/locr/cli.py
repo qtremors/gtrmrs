@@ -224,7 +224,8 @@ def generate_json_report(
     file_results: List[Dict],
     elapsed_time: float,
     interrupted: bool,
-    include_top: bool = False
+    include_top: bool = False,
+    errors=None,
 ) -> str:
     """Generate JSON report from scan results."""
     total_files = sum(s["files"] for s in results.values())
@@ -237,6 +238,8 @@ def generate_json_report(
             "version": __version__,
             "elapsed_seconds": round(elapsed_time, 3),
             "interrupted": interrupted,
+            "incomplete": bool(interrupted or errors),
+            "errors": list(errors or []),
             "timestamp": time.time(),
         },
         "totals": {
@@ -314,6 +317,10 @@ def _configure_parser(parser: argparse.ArgumentParser) -> None:
         help="Only count lines of code in test files.",
     )
     parser.add_argument(
+        "--no-default-dir-excludes", action="store_true",
+        help="Disable built-in directory exclusions; Git rules and file filters still apply.",
+    )
+    parser.add_argument(
         "--out", "-o",
         nargs="?",
         const=True,
@@ -349,10 +356,10 @@ def run(args: argparse.Namespace) -> None:
     use_color = not args.no_color and not is_writing_file and sys.stdout.isatty()
 
     if not os.path.isdir(target_path):
-        print(f"Error: {args.path} is not a directory.")
+        print(f"Error: {args.path} is not a directory.", file=sys.stderr)
         sys.exit(1)
 
-    spinner_active = not is_writing_file and sys.stdout.isatty()
+    spinner_active = not args.json and not is_writing_file and sys.stdout.isatty()
     msg = f"locr: scanning {os.path.basename(target_path)}..."
 
     if spinner_active:
@@ -380,7 +387,8 @@ def run(args: argparse.Namespace) -> None:
         sys.stdout.write(Colors.HIDE_CURSOR)
 
     try:
-        engine = LocrEngine(target_path, raw_mode=args.raw, tests_only=args.tests)
+        engine = LocrEngine(target_path, raw_mode=args.raw, tests_only=args.tests,
+                            default_dir_excludes=not args.no_default_dir_excludes)
         results, file_results = engine.scan(callback=update_spinner)
 
         if spinner_active:
@@ -388,18 +396,24 @@ def run(args: argparse.Namespace) -> None:
             sys.stdout.write(f"\r{' ' * (w - 1)}\r")
             sys.stdout.flush()
 
-    except OSError as e:
+    except (OSError, RuntimeError) as e:
         if spinner_active:
             w = shutil.get_terminal_size().columns
             sys.stdout.write(f"\r{' ' * (w - 1)}\r")
             sys.stdout.flush()
-        print(f"\nError: {e}")
+        print(f"\nError: {e}", file=sys.stderr)
         sys.exit(1)
     finally:
         if spinner_active:
             sys.stdout.write(Colors.SHOW_CURSOR)
 
     end_time = time.time()
+    if engine.errors:
+        print("Scan incomplete: {} file(s) could not be read; totals include successful reads only.".format(len(engine.errors)), file=sys.stderr)
+        for error in engine.errors:
+            print("Error: " + error, file=sys.stderr)
+    if engine.was_interrupted:
+        print("Scan interrupted; totals are incomplete.", file=sys.stderr)
 
     report_lines = []
     if not args.json:
@@ -422,7 +436,7 @@ def run(args: argparse.Namespace) -> None:
         try:
             if args.json:
                 content = generate_json_report(
-                    results, file_results, end_time - start_time, engine.was_interrupted, include_top=args.top
+                    results, file_results, end_time - start_time, engine.was_interrupted, include_top=args.top, errors=engine.errors
                 )
             else:
                 clean_lines = generate_report(
@@ -435,21 +449,28 @@ def run(args: argparse.Namespace) -> None:
                     show_top=args.top,
                 )
                 content = "\n".join(clean_lines) + "\n"
+                if engine.errors or engine.was_interrupted:
+                    content = "Scan incomplete; totals include successful reads only.\n" + content
 
             with open(filename, "w", encoding="utf-8") as f:
                 f.write(content)
             print(f"Output written to: {filename}")
         except OSError as e:
-            print(f"Error writing to file: {e}")
+            print(f"Error writing to file: {e}", file=sys.stderr)
+            sys.exit(1)
     else:
         if args.json:
             print(
                 generate_json_report(
-                    results, file_results, end_time - start_time, engine.was_interrupted, include_top=args.top
+                    results, file_results, end_time - start_time, engine.was_interrupted, include_top=args.top, errors=engine.errors
                 )
             )
         else:
             print("\n".join(report_lines))
+    if engine.was_interrupted:
+        sys.exit(130)
+    if engine.errors:
+        sys.exit(1)
 
 
 def main() -> None:

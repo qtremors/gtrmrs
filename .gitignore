@@ -18,16 +18,22 @@ env/
 .idea/
 .vscode/
 
-# Cache
+# Testing & Coverage
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+.coverage
+htmlcov/
 
 # OS
 .DS_Store
 Thumbs.db
+Desktop.ini
 
-# Misc
+# Temporary, Scratch & Generated Reports
 *.log
 *.tmp
 *.bak
+scratch/
+*-report.html
+android-dependency-report.html

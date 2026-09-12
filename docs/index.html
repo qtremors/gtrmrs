@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#11151b">
+  <meta name="description" content="Five small Python tools for directory trees, code counts, repository copies, Gradle audits and storage cleanup previews.">
+  <title>gtrmrs | Small tools. Clearer repos.</title>
+  <link rel="icon" type="image/svg+xml" href="assets/gtrmrs.svg">
+  <link rel="stylesheet" href="styles.css">
+  <script src="scripts.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="gtrmrs home"><img src="assets/gtrmrs.svg" width="38" height="38" alt=""><span>gtrmrs</span><span class="version">v0.1.0</span></a>
+    <nav aria-label="Main navigation"><a href="#tools">The tools</a><a href="#playground">Preview</a><a class="nav-cta" href="#install">Get started <span aria-hidden="true">↗</span></a></nav>
+  </header>
+  <main id="main">
+    <section class="hero wrap" id="top">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="status-dot" aria-hidden="true"></span> A little order for your everyday work</p>
+        <h1>Your repo.<br><span>Under control.</span></h1>
+        <p class="hero-description">See the tree. Count the code. Leave the clutter behind.<br>Five small commands, one useful toolkit.</p>
+        <div class="hero-actions"><a class="button button-primary" href="#install">Make yourself at home <span aria-hidden="true">↗</span></a><a class="text-link" href="#playground">Take a quick look <span aria-hidden="true">↓</span></a></div>
+        <p class="hero-note">Python 3.11+ <span>·</span> No third-party Python runtime packages</p>
+      </div>
+      <div class="repo-art" aria-hidden="true">
+        <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
+        <span class="floating-label label-top">a place for everything</span>
+        <div class="folder-card"><div class="folder-tab"></div><div class="folder-face"><span class="folder-title">your-project/</span><div class="file-row"><span class="file-mark mark-green"></span> src/ <span class="file-hint">the good stuff</span></div><div class="file-row"><span class="file-mark mark-peach"></span> tests/ <span class="file-hint">peace of mind</span></div><div class="file-row"><span class="file-mark mark-lilac"></span> README.md <span class="file-hint">start here</span></div><div class="folder-footer"><span>&gt;_</span><span>a clearer view.</span></div></div></div>
+        <span class="floating-label label-bottom"><span class="status-dot"></span> small tools, useful answers</span>
+      </div>
+    </section>
+    <section class="tools-section wrap" id="tools" aria-labelledby="tools-heading">
+      <div class="section-heading"><div><p class="eyebrow">THE EVERYDAY FIVE</p><h2 id="tools-heading">Pick your next move.</h2></div><p>No project setup. No extra runtime packages.<br>Git on PATH for Git-aware operations.</p></div>
+      <div class="tool-grid">
+        <article class="tool-card"><span class="tool-number">01 / EXPLORE</span><div class="tool-symbol symbol-green" aria-hidden="true">├─</div><h3>See the whole picture.</h3><p>A readable directory tree, with your Git ignore rules built in.</p><button class="preview-link" data-demo="rtree">rtree <span aria-hidden="true">↗</span></button></article>
+        <article class="tool-card"><span class="tool-number">02 / MEASURE</span><div class="tool-symbol symbol-peach" aria-hidden="true">#</div><h3>Know what you built.</h3><p>Code, comments and blanks, broken down by language.</p><button class="preview-link" data-demo="locr">locr <span aria-hidden="true">↗</span></button></article>
+        <article class="tool-card"><span class="tool-number">03 / TAKE IT WITH YOU</span><div class="tool-symbol symbol-lilac" aria-hidden="true">↗</div><h3>Pack a lighter copy.</h3><p>Copy or zip repositories with Git rules and cache filters.</p><button class="preview-link" data-demo="gitmig">gitmig <span aria-hidden="true">↗</span></button></article>
+        <article class="tool-card"><span class="tool-number">04 / COMPARE</span><div class="tool-symbol symbol-blue" aria-hidden="true">⇄</div><h3>Spot version drift.</h3><p>Compare Gradle catalogs and preview dependency updates.</p><button class="preview-link" data-demo="deps">deps <span aria-hidden="true">↗</span></button></article>
+        <article class="tool-card"><span class="tool-number">05 / MAKE ROOM</span><div class="tool-symbol symbol-yellow" aria-hidden="true">◷</div><h3>Find the heavy folders.</h3><p>Inspect repository sizes and preview generated-file cleanup.</p><button class="preview-link" data-demo="storage">storage <span aria-hidden="true">↗</span></button></article>
+      </div>
+    </section>
+    <section class="playground-section wrap" id="playground" aria-labelledby="preview-heading">
+      <div class="section-heading"><div><p class="eyebrow">A QUICK LOOK</p><h2 id="preview-heading">Less guessing. More seeing.</h2></div><p>Example output.<br>Nothing runs in your browser.</p></div>
+      <div class="demo-tabs" role="tablist" aria-label="Choose a tool preview">
+        <button role="tab" id="tab-rtree" aria-controls="panel-rtree" aria-selected="true" data-tab="rtree">Tree <code>rtree</code></button>
+        <button role="tab" id="tab-locr" aria-controls="panel-locr" aria-selected="false" tabindex="-1" data-tab="locr">Count <code>locr</code></button>
+        <button role="tab" id="tab-gitmig" aria-controls="panel-gitmig" aria-selected="false" tabindex="-1" data-tab="gitmig">Copy <code>gitmig</code></button>
+        <button role="tab" id="tab-deps" aria-controls="panel-deps" aria-selected="false" tabindex="-1" data-tab="deps">Audit <code>deps</code></button>
+        <button role="tab" id="tab-storage" aria-controls="panel-storage" aria-selected="false" tabindex="-1" data-tab="storage">Space <code>storage</code></button>
+      </div>
+      <div class="terminal">
+        <div class="terminal-chrome"><span class="terminal-dots" aria-hidden="true"><i></i><i></i><i></i></span><span>your next useful command</span><span class="terminal-label">PYTHON / LOCAL</span></div>
+        <div class="command-bar"><code id="demo-command">rtree -r src --depth 2</code><button class="copy-button" id="demo-copy" data-copy="rtree -r src --depth 2" aria-label="Copy preview command">Copy <span aria-hidden="true">⧉</span></button></div>
+        <div class="terminal-content">
+          <div role="tabpanel" id="panel-rtree" aria-labelledby="tab-rtree" tabindex="0" data-command="rtree -r src --depth 2"><pre>src/
+├── core/
+│   ├── colors.py
+│   └── patterns.py
+├── locr/
+│   └── engine.py
+└── cli.py</pre><p class="terminal-note">A little structure goes a long way. Add <code>--flat</code> for a simple path list.</p></div>
+          <div role="tabpanel" id="panel-locr" aria-labelledby="tab-locr" tabindex="0" data-command="locr" hidden><pre>Language       Files   Blank   Comment    Code
+─────────────────────────────────────────────
+TypeScript TSX    21     257        19    2256
+Python            15     120       240     840
+JavaScript         7      36        14     239
+─────────────────────────────────────────────
+TOTAL             43     413       273    3335</pre><p class="terminal-note">A compact excerpt. Add <code>--top</code> to find the largest files.</p></div>
+          <div role="tabpanel" id="panel-gitmig" aria-labelledby="tab-gitmig" tabindex="0" data-command="gitmig ../backup --dry-run" hidden><pre>[1/1] your-project/
+      → Copying: 124 files
+      → Skipping: node_modules/ (1 dirs)
+
+DRY RUN COMPLETE (no files copied)
+Would copy: 124 files across 1 repos
+Would skip: 1 dependency/cache directories</pre><p class="terminal-note">Keep the destination outside the source. Copies can include preserved <code>.env</code> files.</p></div>
+          <div role="tabpanel" id="panel-deps" aria-labelledby="tab-deps" tabindex="0" data-command="deps --no-upstream" hidden><pre>Gradle Wrapper Distribution:
+  Latest in repos : app-b (8.10)
+  Outdated repos  : app-a (8.7)
+
+Upstream checks: 0 checked, 12 skipped, 0 unavailable.
+Upstream checks were skipped (--no-upstream).</pre><p class="terminal-note">Default Gradle catalogs only. Plans compare declarations; they do not verify that the project builds.</p></div>
+          <div role="tabpanel" id="panel-storage" aria-labelledby="tab-storage" tabindex="0" data-command="storage --clean" hidden><pre>Generated directories (largest first):
+REMOVE 128.00 MiB  your-project/target/debug
+KEEP     2.00 KiB  your-project/__pycache__
+  Keep: Contains tracked or unignored files
+
+Eligible cleanup: 128.00 MiB
+PREVIEW /projects/your-project/target/debug
+Nothing deleted.</pre><p class="terminal-note">Cleanup needs <code>--clean --apply</code>. Add <code>--keep</code> for custom files you want to retain.</p></div>
+        </div>
+        <div class="terminal-footer"><span><span class="status-dot" aria-hidden="true"></span> Preview first. Apply when ready.</span><a href="https://github.com/qtremors/gtrmrs/blob/main/COMMANDS.md">All options <span aria-hidden="true">↗</span></a></div>
+      </div>
+    </section>
+    <section class="install-section wrap" id="install" aria-labelledby="install-heading">
+      <div class="install-intro"><p class="eyebrow">YOURS TO USE LOCALLY</p><h2 id="install-heading">A small addition.<br>A useful habit.</h2><p>Clone the source. Install locally.<br>Start with whichever command you need.</p><span class="requirement">Python 3.11+ · Git for Git-aware operations</span></div>
+      <div class="install-card"><div class="install-card-top"><span>FROM SOURCE</span><button class="copy-button" data-copy="git clone https://github.com/qtremors/gtrmrs.git&#10;cd gtrmrs&#10;python -m pip install -e ." aria-label="Copy installation commands">Copy <span aria-hidden="true">⧉</span></button></div><ol class="install-steps"><li><code>git clone https://github.com/qtremors/gtrmrs.git</code></li><li><code>cd gtrmrs</code></li><li><code>python -m pip install -e .</code></li></ol><p class="install-caption">Local source install. No PyPI package.</p><details><summary>Prefer to skip installation?</summary><p>From the cloned source directory:</p><code class="direct-command">python -m gtrmrs.cli --help</code></details></div>
+    </section>
+    <section class="good-to-know wrap" aria-label="Good to know"><p class="eyebrow">THE SHORT VERSION</p><details><summary>Will it change my files?</summary><p>Scans are read-only. Migration writes a destination copy. Dependency updates edit build files when requested. Storage deletion requires <code>--clean --apply</code>; stop builds and other writers first.</p></details><details><summary>Where are the details and limitations?</summary><p>The <a href="https://github.com/qtremors/gtrmrs/blob/main/COMMANDS.md">command guide</a> covers filtering, supported formats, network requests, update limits and cleanup rules. Start with a preview before applying changes.</p></details></section>
+  </main>
+  <footer class="site-footer wrap"><a class="footer-brand" href="#top">gtrmrs <span>small tools. clearer repos.</span></a><div><a href="https://github.com/qtremors/gtrmrs">Source <span aria-hidden="true">↗</span></a><a href="https://github.com/qtremors/gtrmrs/blob/main/COMMANDS.md">Docs</a><a href="https://github.com/qtremors/gtrmrs/blob/main/LICENSE.md">License</a></div><span>Made by Tremors.</span></footer>
+  <p class="sr-only" id="copy-status" role="status" aria-live="polite"></p>
+</body>
+</html>
