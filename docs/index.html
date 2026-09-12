@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#090c10">
+  <meta name="description" content="gtrmrs: Pure Python, zero-dependency, Git-aware CLI tools for directory trees, lines of code, lean migrations, and dependency audits. Local install only.">
+  <title>gtrmrs: Git-Aware CLI Developer Tools (Pure Python)</title>
+  <link rel="icon" type="image/svg+xml" href="assets/gtrmrs.svg">
+
+  <!-- JetBrains Mono Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+  <script src="scripts.js" defer></script>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="container">
+      <div class="header-inner">
+        <a href="#top" class="brand">
+          <img src="assets/gtrmrs.svg" alt="gtrmrs" class="brand-img">
+          <span class="brand-title">gtrmrs</span>
+          <span class="brand-ver">v1.5.0</span>
+          <span class="brand-meta">python3 : zero-deps</span>
+        </a>
+
+        <nav class="nav-links">
+          <a href="#terminal" class="nav-link">Terminal</a>
+          <a href="#stacks" class="nav-link">Tech Stacks</a>
+          <a href="#tools" class="nav-link">Tools</a>
+          <a href="#commands" class="nav-link">Commands</a>
+          <a href="#install" class="nav-link">Install</a>
+          <a href="https://github.com/qtremors/gtrmrs" target="_blank" rel="noopener" class="btn-github">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor">
+              <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+            </svg>
+            <span>GitHub</span>
+          </a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero" id="top">
+    <div class="container">
+      
+      <!-- System Specs Badges -->
+      <div class="specs-bar">
+        <span class="spec-tag">[Local Install Only]</span>
+        <span class="spec-tag">[Pure Python 3.8+]</span>
+        <span class="spec-tag">[0 External Dependencies]</span>
+        <span class="spec-tag">[Git-Aware]</span>
+      </div>
+
+      <h1 class="hero-title">
+        Git-Aware CLI Developer Tools
+      </h1>
+
+      <p class="hero-sub">
+        Pure Python standard library suite for lines of code analysis, directory tree visualization, dependency catalog audits, and clean repository migrations.
+      </p>
+
+      <!-- Live GitHub Stats (Stars and Forks only) -->
+      <div class="stats-row">
+        <a href="https://github.com/qtremors/gtrmrs" target="_blank" rel="noopener noreferrer" class="gh-stat-pill" title="GitHub repository stats" aria-label="gtrmrs GitHub repository stars and forks">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor">
+            <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+          </svg>
+          <span class="gh-stat-divider"></span>
+          <div class="gh-stat-group">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+            <span id="gh-stars">--</span>
+            <span class="gh-stat-label">stars</span>
+          </div>
+          <div class="gh-stat-group">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="6" y1="3" x2="6" y2="15"></line>
+              <circle cx="18" cy="6" r="3"></circle>
+              <circle cx="6" cy="18" r="3"></circle>
+              <path d="M18 9a9 9 0 0 1-9 9"></path>
+            </svg>
+            <span id="gh-forks">--</span>
+            <span class="gh-stat-label">forks</span>
+          </div>
+        </a>
+      </div>
+
+      <!-- Prominent Local Install Box -->
+      <div class="install-card">
+        <div class="install-header">
+          <span class="install-label">LOCAL INSTALLATION (FROM SOURCE)</span>
+          <span class="install-notice">Not on PyPI or package managers</span>
+        </div>
+        <div class="install-body">
+          <div class="code-line">
+            <span class="cmd-prompt">$</span>
+            <span class="cmd-text">git clone https://github.com/qtremors/gtrmrs.git &amp;&amp; cd gtrmrs &amp;&amp; pip install -e .</span>
+            <button class="btn-copy" data-copy="git clone https://github.com/qtremors/gtrmrs.git &amp;&amp; cd gtrmrs &amp;&amp; pip install -e ." aria-label="Copy local install command">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="install-footer">
+          Registers shell commands: <code>locr</code>, <code>rtree</code>, <code>deps</code>, <code>gitmig</code>, and <code>gtrmrs</code>. Or run directly without install via <code>python -m gtrmrs.cli</code>.
+        </div>
+      </div>
+
+      <!-- Interactive TUI Terminal Window -->
+      <div class="terminal-window" id="terminal">
+        <div class="terminal-header">
+          <div class="terminal-dots">
+            <span class="terminal-dot red"></span>
+            <span class="terminal-dot yellow"></span>
+            <span class="terminal-dot green"></span>
+          </div>
+          <div class="terminal-tabs">
+            <button class="term-tab active" data-tab="locr-stats">locr --stats</button>
+            <button class="term-tab" data-tab="locr-top">locr --top</button>
+            <button class="term-tab" data-tab="rtree">rtree -r app --depth 2</button>
+            <button class="term-tab" data-tab="deps">deps --no-upstream</button>
+            <button class="term-tab" data-tab="gitmig">gitmig ./backup --dry-run</button>
+          </div>
+          <div class="terminal-status">python3 : utf-8</div>
+        </div>
+
+        <div class="terminal-body">
+          <!-- locr --stats Pane -->
+          <div class="term-pane active" id="pane-locr-stats">
+            <div class="t-line"><span class="t-prompt">$</span> <span class="t-cmd">locr --stats</span></div>
+            <div class="t-line t-dim">==============================================================================</div>
+            <div class="t-line t-bold">Language                    Files          Blank        Comment           Code</div>
+            <div class="t-line t-dim">------------------------------------------------------------------------------</div>
+            <div class="t-line"><span class="t-purple">Kotlin</span>                   63 (63%)      1650 (63%)      378 (62%)    25757 (68%)</div>
+            <div class="t-line"><span class="t-red">XML</span>                      17 (17%)         9 (0%)         0 (0%)      1066 (3%)</div>
+            <div class="t-line"><span class="t-cyan">CSS</span>                       1 (1%)        133 (5%)        47 (8%)       943 (2%)</div>
+            <div class="t-line"><span class="t-yellow">HTML</span>                      1 (1%)         53 (2%)        25 (4%)       465 (1%)</div>
+            <div class="t-line"><span class="t-purple">Kotlin Script</span>             3 (3%)         19 (1%)         1 (0%)       216 (1%)</div>
+            <div class="t-line"><span class="t-yellow">JavaScript</span>                1 (1%)         34 (1%)        17 (3%)       194 (1%)</div>
+            <div class="t-line"><span class="t-cyan">TOML</span>                      1 (1%)          3 (0%)         0 (0%)        74 (0%)</div>
+            <div class="t-line"><span class="t-dim">Properties</span>                3 (3%)          0 (0%)        15 (2%)        22 (0%)</div>
+            <div class="t-line t-dim">------------------------------------------------------------------------------</div>
+            <div class="t-line t-bold t-green">TOTAL                   100 (100%)     2267 (100%)     494 (100%)   29962 (100%)</div>
+            <div class="t-line t-dim">==============================================================================</div>
+            <div class="t-line t-dim" style="margin-top: 8px;">Processed 100 files in 0.048 seconds. (Eagerly pruned: build/, .gradle/, schemas/)</div>
+          </div>
+
+          <!-- locr --top Pane -->
+          <div class="term-pane" id="pane-locr-top">
+            <div class="t-line"><span class="t-prompt">$</span> <span class="t-cmd">locr --top</span></div>
+            <div class="t-line t-dim">================================================================================</div>
+            <div class="t-line t-bold">Top 15 Largest Files                      Blank    Comment       Code      Total</div>
+            <div class="t-line t-dim">--------------------------------------------------------------------------------</div>
+            <div class="t-line">app/src/main/java/MainActivity.kt           107         17        633        757</div>
+            <div class="t-line">core/database/AppDatabase.kt                112         76        502        690</div>
+            <div class="t-line">feature/player/AudioPlayer.kt                70         22        379        471</div>
+            <div class="t-line">core/network/HttpClient.kt                   54         70        132        256</div>
+            <div class="t-line">feature/settings/SettingsView.kt             48         23        185        256</div>
+            <div class="t-line">app/src/main/res/layout/activity.xml          9          0        240        249</div>
+            <div class="t-line">gradle/libs.versions.toml                     3          0         74         77</div>
+            <div class="t-line">app/build.gradle.kts                         19          1         52         72</div>
+            <div class="t-line t-dim">================================================================================</div>
+            <div class="t-line t-dim" style="margin-top: 8px;">Processed 100 files in 0.042 seconds.</div>
+          </div>
+
+          <!-- rtree Pane -->
+          <div class="term-pane" id="pane-rtree">
+            <div class="t-line"><span class="t-prompt">$</span> <span class="t-cmd">rtree -r app --depth 2</span></div>
+            <div class="t-line t-cyan">app/</div>
+            <div class="t-line">├── <span class="t-cyan">src/</span></div>
+            <div class="t-line">│   ├── <span class="t-cyan">main/</span></div>
+            <div class="t-line">│   └── <span class="t-cyan">test/</span></div>
+            <div class="t-line">├── <span class="t-green">build.gradle.kts</span></div>
+            <div class="t-line">├── <span class="t-yellow">proguard-rules.pro</span></div>
+            <div class="t-line">└── <span class="t-dim">.gitignore</span></div>
+            <div class="t-line t-dim" style="margin-top: 10px;">Eagerly pruned: build/ (skipped), .gradle/ (skipped), .cxx/ (skipped), schemas/ (skipped)</div>
+            <div class="t-line t-green">Scanned 4 directories, 3 files (0.012s)</div>
+          </div>
+
+          <!-- deps Pane -->
+          <div class="term-pane" id="pane-deps">
+            <div class="t-line"><span class="t-prompt">$</span> <span class="t-cmd">deps --no-upstream</span></div>
+            <div class="t-line t-cyan t-bold">--- REPOSITORY PROFILES ---</div>
+            <div class="t-line t-bold">Repository         Gradle     AGP        Kotlin     BOM            Min SDK    Compile SDK</div>
+            <div class="t-line t-dim">------------------------------------------------------------------------------------------</div>
+            <div class="t-line">acqua              <span class="t-yellow">9.6.0</span>      <span class="t-green">9.4.0</span>      <span class="t-yellow">2.4.10</span>     <span class="t-yellow">2026.08.00</span>     24         37</div>
+            <div class="t-line">arcile             <span class="t-yellow">9.5.0</span>      <span class="t-yellow">9.3.1</span>      <span class="t-yellow">2.4.10</span>     <span class="t-yellow">2026.08.00</span>     30         37</div>
+            <div class="t-line">earnslate          <span class="t-green">9.7.1</span>      <span class="t-green">9.4.0</span>      <span class="t-green">2.4.20</span>     <span class="t-green">2026.09.00</span>     24         37</div>
+            <div class="t-line t-yellow t-bold" style="margin-top: 10px;">--- NOTABLE DISCREPANCIES ACROSS REPOSITORIES ---</div>
+            <div class="t-line">  * <span class="t-bold">Gradle Wrapper Distribution</span>:</div>
+            <div class="t-line">    - <span class="t-green">Latest in repos</span>: earnslate (9.7.1)</div>
+            <div class="t-line">    - <span class="t-yellow">Outdated repos </span>: arcile (9.5.0) | acqua (9.6.0)</div>
+            <div class="t-line">  * <span class="t-bold">androidx.navigation:navigation-compose</span>:</div>
+            <div class="t-line">    - <span class="t-green">Latest in repos</span>: earnslate (2.10.1)</div>
+            <div class="t-line">    - <span class="t-yellow">Outdated repos </span>: arcile (2.9.8)</div>
+            <div class="t-line t-cyan t-bold" style="margin-top: 10px;">--- AUDIT STATISTICS ---</div>
+            <div class="t-line">  Total Scanned Components : 92</div>
+            <div class="t-line">  Discrepancies in Repos   : 14</div>
+            <div class="t-line">  Newer Upstream Available : 11 (run without --no-upstream to query live)</div>
+            <div class="t-line t-green" style="margin-top: 8px;">Run 'deps --align --dry-run' to preview synchronization updates across version catalogs.</div>
+          </div>
+
+          <!-- gitmig Pane -->
+          <div class="term-pane" id="pane-gitmig">
+            <div class="t-line"><span class="t-prompt">$</span> <span class="t-cmd">gitmig ./backup --dry-run --stats</span></div>
+            <div class="t-line t-cyan t-bold">Scanning repositories for lean migration...</div>
+            <div class="t-line">  Source      : /home/dev/projects</div>
+            <div class="t-line">  Destination : /home/dev/backup</div>
+            <div class="t-line">  Exclusions  : node_modules/, .git/, venv/, build/, .gradle/, *.apk, local.properties</div>
+            <div class="t-line t-dim" style="margin-top: 10px;">========================================================================</div>
+            <div class="t-line t-bold">Repository                  Files To Copy         Pruned Size       Preserved .env</div>
+            <div class="t-line t-dim">------------------------------------------------------------------------</div>
+            <div class="t-line">earnslate                            110              420 MB                    1</div>
+            <div class="t-line">acqua                                201              310 MB                    1</div>
+            <div class="t-line">arcile                              1096              1.2 GB                    1</div>
+            <div class="t-line t-dim">------------------------------------------------------------------------</div>
+            <div class="t-line t-bold t-green">Ready to copy 1,407 clean source files (1.93 GB pruned). [DRY-RUN]</div>
+            <div class="t-line t-dim" style="margin-top: 6px;">Completed scan in 0.04s. Run without --dry-run to perform copy.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Supported Tech Stacks Section -->
+  <section class="section" id="stacks">
+    <div class="container">
+      <div class="section-tag">[TECH STACKS]</div>
+      <h2 class="section-title">Supported Tech Stacks &amp; Ecosystems</h2>
+      <p class="section-sub">
+        Language recognition, comment parsing, version catalog analysis, and automatic eager pruning across major development stacks.
+      </p>
+
+      <div class="stacks-grid">
+        <!-- Android / Kotlin / JVM -->
+        <div class="stack-card">
+          <div class="stack-header">
+            <span class="stack-badge">Android &amp; JVM</span>
+            <span class="stack-tag">Mobile &amp; App Suites</span>
+          </div>
+          <div class="stack-body">
+            <div class="stack-row">
+              <span class="stack-label">Languages:</span>
+              <span class="stack-val">Kotlin (<code>.kt</code>, <code>.kts</code>), Java (<code>.java</code>), XML (<code>.xml</code>), AIDL (<code>.aidl</code>), ProGuard (<code>.pro</code>), Protocol Buffers (<code>.proto</code>), C++ (<code>.cpp</code>, <code>.hpp</code>, <code>.cc</code>, <code>.cxx</code>, <code>.hh</code>, <code>.hxx</code>)</span>
+            </div>
+            <div class="stack-row">
+              <span class="stack-label">Catalogs &amp; Config:</span>
+              <span class="stack-val">Gradle Version Catalogs (<code>libs.versions.toml</code>), Gradle wrapper distributions (<code>gradle-wrapper.properties</code>), <code>build.gradle</code>, <code>settings.gradle</code>, <code>gradle.properties</code></span>
+            </div>
+            <div class="stack-row">
+              <span class="stack-label">Auto-Pruned Artifacts:</span>
+              <span class="stack-val t-dim"><code>build/</code>, <code>.gradle/</code>, <code>.cxx/</code>, <code>captures/</code>, <code>externalNativeBuild/</code>, Room SQLite <code>schemas/</code>, <code>*.apk</code>, <code>*.aab</code>, <code>*.dex</code>, <code>local.properties</code>, <code>signing.properties</code>, <code>keystore.properties</code></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Python Ecosystem -->
+        <div class="stack-card">
+          <div class="stack-header">
+            <span class="stack-badge">Python Ecosystem</span>
+            <span class="stack-tag">Backend &amp; CLI Tooling</span>
+          </div>
+          <div class="stack-body">
+            <div class="stack-row">
+              <span class="stack-label">Languages:</span>
+              <span class="stack-val">Python (<code>.py</code>, <code>.pyi</code>) with docstring and <code>#</code> comment syntax parsing</span>
+            </div>
+            <div class="stack-row">
+              <span class="stack-label">Catalogs &amp; Config:</span>
+              <span class="stack-val"><code>pyproject.toml</code>, <code>setup.py</code>, <code>requirements.txt</code>, <code>Pipfile</code>, <code>tox.ini</code></span>
+            </div>
+            <div class="stack-row">
+              <span class="stack-label">Auto-Pruned Artifacts:</span>
+              <span class="stack-val t-dim"><code>__pycache__/</code>, <code>venv/</code>, <code>.venv/</code>, <code>env/</code>, <code>.pytest_cache/</code>, <code>.mypy_cache/</code>, <code>.ruff_cache/</code>, <code>*.egg-info/</code>, <code>.tox/</code>, <code>.nox/</code>, <code>dist/</code>, <code>*.py[cod]</code></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Web & Frontend -->
+        <div class="stack-card">
+          <div class="stack-header">
+            <span class="stack-badge">Web &amp; Modern Frontend</span>
+            <span class="stack-tag">Full-Stack &amp; UI</span>
+          </div>
+          <div class="stack-body">
+            <div class="stack-row">
+              <span class="stack-label">Languages:</span>
+              <span class="stack-val">TypeScript (<code>.ts</code>, <code>.tsx</code>), JavaScript (<code>.js</code>, <code>.jsx</code>), HTML (<code>.html</code>), CSS (<code>.css</code>), Sass/SCSS (<code>.scss</code>, <code>.sass</code>), JSON (<code>.json</code>)</span>
+            </div>
+            <div class="stack-row">
+              <span class="stack-label">Catalogs &amp; Config:</span>
+              <span class="stack-val"><code>package.json</code>, <code>tsconfig.json</code>, lockfiles</span>
+            </div>
+            <div class="stack-row">
+              <span class="stack-label">Auto-Pruned Artifacts:</span>
+              <span class="stack-val t-dim"><code>node_modules/</code>, <code>.next/</code>, <code>.nuxt/</code>, <code>.output/</code>, <code>.cache/</code>, <code>.turbo/</code>, <code>.parcel-cache/</code>, <code>bower_components/</code></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Systems & Native -->
+        <div class="stack-card">
+          <div class="stack-header">
+            <span class="stack-badge">Systems &amp; Native</span>
+            <span class="stack-tag">Compiled &amp; High-Performance</span>
+          </div>
+          <div class="stack-body">
+            <div class="stack-row">
+              <span class="stack-label">Languages:</span>
+              <span class="stack-val">Rust (<code>.rs</code>), Go (<code>.go</code>), C (<code>.c</code>, <code>.h</code>), C++ (<code>.cpp</code>, <code>.cc</code>, <code>.cxx</code>, <code>.hpp</code>, <code>.hh</code>, <code>.hxx</code>), C# (<code>.cs</code>), Swift (<code>.swift</code>)</span>
+            </div>
+            <div class="stack-row">
+              <span class="stack-label">Catalogs &amp; Config:</span>
+              <span class="stack-val"><code>Cargo.toml</code>, <code>go.mod</code>, <code>CMakeLists.txt</code></span>
+            </div>
+            <div class="stack-row">
+              <span class="stack-label">Auto-Pruned Artifacts:</span>
+              <span class="stack-val t-dim"><code>target/</code>, <code>bin/</code>, <code>obj/</code>, <code>out/</code>, <code>*.o</code>, <code>*.a</code>, <code>*.so</code>, <code>*.dylib</code>, <code>*.dll</code>, <code>*.exe</code></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Scripting, Config & Data -->
+        <div class="stack-card">
+          <div class="stack-header">
+            <span class="stack-badge">Scripting &amp; Infrastructure</span>
+            <span class="stack-tag">DevOps &amp; Config</span>
+          </div>
+          <div class="stack-body">
+            <div class="stack-row">
+              <span class="stack-label">Languages:</span>
+              <span class="stack-val">Shell (<code>.sh</code>, <code>.bash</code>, <code>.zsh</code>), PowerShell (<code>.ps1</code>), Batch (<code>.bat</code>, <code>.cmd</code>), SQL (<code>.sql</code>), TOML (<code>.toml</code>), YAML (<code>.yaml</code>, <code>.yml</code>), Markdown (<code>.md</code>), Dockerfile</span>
+            </div>
+            <div class="stack-row">
+              <span class="stack-label">Secrets &amp; Safety:</span>
+              <span class="stack-val">Preserves <code>.env</code> configurations and <code>.gitignore</code> rules during migrations while excluding local machine credentials (<code>*.keystore</code>, <code>*.jks</code>, <code>local.properties</code>)</span>
+            </div>
+            <div class="stack-row">
+              <span class="stack-label">Auto-Pruned Artifacts:</span>
+              <span class="stack-val t-dim"><code>.git/</code>, <code>.svn/</code>, <code>.idea/</code>, <code>.vscode/</code>, <code>.DS_Store</code>, <code>Thumbs.db</code>, <code>*.log</code>, <code>*.tmp</code>, <code>*.bak</code></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tools Section -->
+  <section class="section" id="tools">
+    <div class="container">
+      <div class="section-tag">[TOOLS]</div>
+      <h2 class="section-title">Core Developer Utilities</h2>
+      <p class="section-sub">
+        Four focused utilities designed to run standalone or through the unified <code>gtrmrs</code> entrypoint.
+      </p>
+
+      <div class="tools-grid">
+        <!-- locr -->
+        <div class="tool-card">
+          <div class="tool-header">
+            <span class="tool-badge">locr</span>
+            <span class="tool-subtag">Lines of Code Counter</span>
+          </div>
+          <p class="tool-desc">
+            Fast, Git-aware lines of code counter supporting 25+ programming languages. Understands multi-line and single-line comment syntax without third-party lexers.
+          </p>
+          <ul class="tool-bullets">
+            <li><code>--stats</code> : Breakdown percentage distribution</li>
+            <li><code>--tests</code> : Filter and count only test suite code</li>
+            <li><code>--top</code> : Rank the top 15 largest files</li>
+            <li><code>--json</code> : Output structured machine data</li>
+          </ul>
+          <div class="tool-code">
+            <span>$ locr --stats --top</span>
+            <button class="btn-copy" data-copy="locr --stats --top" aria-label="Copy command">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- rtree -->
+        <div class="tool-card">
+          <div class="tool-header">
+            <span class="tool-badge">rtree</span>
+            <span class="tool-subtag">Directory Tree Visualizer</span>
+          </div>
+          <p class="tool-desc">
+            Generates clean, readable directory tree representations. Automatically prunes heavy build artifacts and caches before scanning.
+          </p>
+          <ul class="tool-bullets">
+            <li><code>--depth N</code> : Control folder traversal depth</li>
+            <li><code>--flat</code> : Output flat path list instead of tree</li>
+            <li><code>-r &lt;path&gt;</code> : Target a specific directory</li>
+            <li><code>-o &lt;file&gt;</code> : Export visual tree directly to file</li>
+          </ul>
+          <div class="tool-code">
+            <span>$ rtree -r app --depth 2</span>
+            <button class="btn-copy" data-copy="rtree -r app --depth 2" aria-label="Copy command">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- deps -->
+        <div class="tool-card">
+          <div class="tool-header">
+            <span class="tool-badge">deps</span>
+            <span class="tool-subtag">Dependency Catalog Auditor</span>
+          </div>
+          <p class="tool-desc">
+            Audits multi-repository Gradle version catalogs (<code>libs.versions.toml</code>), detects version drift across projects, queries upstream registries, and performs safe in-place updates.
+          </p>
+          <ul class="tool-bullets">
+            <li><code>--align</code> : Synchronize repos to highest version found</li>
+            <li><code>--update</code> : Upgrade to latest upstream stable releases</li>
+            <li><code>--dry-run</code> : Preview line changes without writing</li>
+            <li><code>--html --open</code> : Generate standalone interactive HTML report</li>
+          </ul>
+          <div class="tool-code">
+            <span>$ deps --align --dry-run</span>
+            <button class="btn-copy" data-copy="deps --align --dry-run" aria-label="Copy command">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- gitmig -->
+        <div class="tool-card">
+          <div class="tool-header">
+            <span class="tool-badge">gitmig</span>
+            <span class="tool-subtag">Repository Migrator</span>
+          </div>
+          <p class="tool-desc">
+            Copies or archives Git repositories without giant dependency folders (<code>node_modules</code>, <code>venv</code>, <code>build</code>, <code>.git</code>). Safely preserves <code>.env</code> and <code>.gitignore</code> files.
+          </p>
+          <ul class="tool-bullets">
+            <li><code>--dry-run</code> : Preview migration operations and sizes</li>
+            <li><code>--zip</code> : Output direct compressed archive</li>
+            <li><code>--git-size</code> : Analyze sorted repository storage footprint</li>
+            <li><code>--env</code> : Backup only environment configurations</li>
+          </ul>
+          <div class="tool-code">
+            <span>$ gitmig ./backup --dry-run</span>
+            <button class="btn-copy" data-copy="gitmig ./backup --dry-run" aria-label="Copy command">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Technical Characteristics -->
+  <section class="section" id="tech">
+    <div class="container">
+      <div class="section-tag">[ARCHITECTURE]</div>
+      <h2 class="section-title">Design &amp; Performance</h2>
+      <p class="section-sub">
+        Engineering decisions behind gtrmrs's speed and reliability.
+      </p>
+
+      <div class="specs-grid">
+        <div class="spec-card">
+          <div class="spec-title">Pure Python Standard Library</div>
+          <div class="spec-desc">
+            Zero third-party pip dependencies. Implemented exclusively with <code>os</code>, <code>sys</code>, <code>subprocess</code>, <code>fnmatch</code>, and <code>urllib</code>. Instant installation, zero supply chain risk, and zero native compilation steps.
+          </div>
+        </div>
+
+        <div class="spec-card">
+          <div class="spec-title">2-Phase Hybrid Scanning</div>
+          <div class="spec-desc">
+            Phase 1 eagerly matches folder names against heavy directory patterns during <code>os.walk</code>, skipping entire trees before recursing. Phase 2 applies Git ignore checks for 100% path accuracy.
+          </div>
+        </div>
+
+        <div class="spec-card">
+          <div class="spec-title">Android &amp; Multi-Module Native</div>
+          <div class="spec-desc">
+            First-class support for multi-module Gradle setups. Prunes <code>build/</code>, <code>.gradle/</code>, <code>.cxx/</code>, and Room SQLite <code>schemas/</code> while parsing version catalogs, wrappers, and SDK target levels.
+          </div>
+        </div>
+
+        <div class="spec-card">
+          <div class="spec-title">Dual Calling Convention</div>
+          <div class="spec-desc">
+            Run commands individually (<code>locr</code>, <code>rtree</code>, <code>deps</code>, <code>gitmig</code>) or grouped under the <code>gtrmrs &lt;subcommand&gt;</code> entrypoint. Also runs directly via <code>python -m gtrmrs.cli</code>.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Command Reference -->
+  <section class="section" id="commands">
+    <div class="container">
+      <div class="section-tag">[REFERENCE]</div>
+      <h2 class="section-title">Command Reference</h2>
+      <p class="section-sub">Quick command lookup for common tasks and flags.</p>
+
+      <div class="search-bar">
+        <input type="text" id="cmdSearch" class="search-input" placeholder="Filter commands, flags, or descriptions...">
+      </div>
+
+      <div class="table-wrap">
+        <table id="cmdTable">
+          <thead>
+            <tr>
+              <th>Command</th>
+              <th>Action</th>
+              <th>Options</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>rtree</code></td>
+              <td>Print directory tree of current folder</td>
+              <td><code>--depth N</code>, <code>--flat</code>, <code>-r &lt;path&gt;</code></td>
+            </tr>
+            <tr>
+              <td><code>rtree --depth 2</code></td>
+              <td>Limit tree depth to two levels</td>
+              <td><code>-o &lt;file&gt;</code></td>
+            </tr>
+            <tr>
+              <td><code>locr</code></td>
+              <td>Count lines of code across detected languages</td>
+              <td><code>--stats</code>, <code>--color</code>, <code>--json</code></td>
+            </tr>
+            <tr>
+              <td><code>locr --tests</code></td>
+              <td>Count only test files across test suites</td>
+              <td><code>--top</code> (rank 15 largest files)</td>
+            </tr>
+            <tr>
+              <td><code>deps</code></td>
+              <td>Audit version catalogs across workspace repositories</td>
+              <td><code>--no-upstream</code>, <code>--repo &lt;name&gt;</code></td>
+            </tr>
+            <tr>
+              <td><code>deps --align</code></td>
+              <td>Align outdated repositories to highest version in workspace</td>
+              <td><code>--dry-run</code> (preview updates)</td>
+            </tr>
+            <tr>
+              <td><code>deps --update</code></td>
+              <td>Upgrade libraries and plugins to upstream latest stable</td>
+              <td><code>--dry-run</code>, <code>--repo &lt;name&gt;</code></td>
+            </tr>
+            <tr>
+              <td><code>deps --html --open</code></td>
+              <td>Generate and launch interactive HTML dependency report</td>
+              <td><code>--json</code>, <code>--out &lt;file&gt;</code></td>
+            </tr>
+            <tr>
+              <td><code>gitmig ./backup</code></td>
+              <td>Copy repositories without dependencies to destination</td>
+              <td><code>--dry-run</code>, <code>--zip</code>, <code>--stats</code></td>
+            </tr>
+            <tr>
+              <td><code>gitmig --git-size</code></td>
+              <td>Display sorted sizes of .git storage directories</td>
+              <td><code>--only &lt;name&gt;</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Installation -->
+  <section class="section" id="install">
+    <div class="container">
+      <div class="section-tag">[INSTALLATION]</div>
+      <h2 class="section-title">Local Installation Only</h2>
+      <p class="section-sub">
+        gtrmrs is not published on PyPI or package managers. Install directly from local source.
+      </p>
+
+      <div class="install-grid">
+        <!-- Method 1 -->
+        <div class="install-method-card">
+          <div class="method-header">
+            <span class="method-num">01</span>
+            <span class="method-title">Editable Local Install (Recommended)</span>
+          </div>
+          <p class="method-desc">
+            Clones the source repository and installs an editable link into your active Python environment.
+          </p>
+          <div class="method-code">
+            <div class="t-line"><span class="t-dim"># Clone from GitHub</span></div>
+            <div class="t-line"><span class="t-prompt">$</span> git clone https://github.com/qtremors/gtrmrs.git</div>
+            <div class="t-line"><span class="t-prompt">$</span> cd gtrmrs</div>
+            <div class="t-line"><span class="t-dim" style="margin-top: 6px;"># Install in editable mode</span></div>
+            <div class="t-line"><span class="t-prompt">$</span> pip install -e .</div>
+          </div>
+          <div class="method-note">
+            Registers shell console commands: <code>locr</code>, <code>rtree</code>, <code>deps</code>, <code>gitmig</code>, and <code>gtrmrs</code>.
+          </div>
+        </div>
+
+        <!-- Method 2 -->
+        <div class="install-method-card">
+          <div class="method-header">
+            <span class="method-num">02</span>
+            <span class="method-title">Direct Execution Without Install</span>
+          </div>
+          <p class="method-desc">
+            Execute utilities directly using Python's module syntax without installing anything into your environment.
+          </p>
+          <div class="method-code">
+            <div class="t-line"><span class="t-dim"># Run umbrella CLI</span></div>
+            <div class="t-line"><span class="t-prompt">$</span> python -m gtrmrs.cli --help</div>
+            <div class="t-line"><span class="t-dim" style="margin-top: 6px;"># Run individual tools directly</span></div>
+            <div class="t-line"><span class="t-prompt">$</span> python -m gtrmrs.locr.cli</div>
+            <div class="t-line"><span class="t-prompt">$</span> python -m gtrmrs.deps.cli</div>
+          </div>
+          <div class="method-note">
+            Requires only Python 3.8+ on system path. No pip install required.
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ -->
+      <div class="faq-section">
+        <div class="section-tag" style="margin-bottom: 12px;">[FAQ]</div>
+        <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 24px;">Frequently Asked Questions</h3>
+
+        <div class="faq-grid">
+          <div class="faq-card">
+            <div class="faq-q">Why is gtrmrs not on PyPI?</div>
+            <div class="faq-a">gtrmrs is intentionally maintained as a direct, local source repository. Installing locally via <code>git clone</code> and <code>pip install -e .</code> gives you full control and zero dependency supply chain baggage.</div>
+          </div>
+
+          <div class="faq-card">
+            <div class="faq-q">Does gtrmrs require internet access?</div>
+            <div class="faq-a">No. <code>locr</code>, <code>rtree</code>, and <code>gitmig</code> are 100% offline. The <code>deps</code> tool works completely offline when passed <code>--no-upstream</code>, and only connects to public Maven and Gradle registries when querying for upstream version updates.</div>
+          </div>
+
+          <div class="faq-card">
+            <div class="faq-q">How does eager directory pruning work?</div>
+            <div class="faq-a">During directory walking, folder names are compared against known build and cache signatures (<code>build</code>, <code>.gradle</code>, <code>.cxx</code>, <code>node_modules</code>, <code>schemas</code>, <code>venv</code>). Matching folders are pruned immediately before walking child directories, resulting in 40x+ faster scans.</div>
+          </div>
+
+          <div class="faq-card">
+            <div class="faq-q">What operating systems are supported?</div>
+            <div class="faq-a">Windows, macOS, and Linux are all natively supported. The codebase uses only Python standard library cross-platform path utilities and ANSI coloring.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-inner">
+        <div>
+          <code>gtrmrs</code> : Git-aware developer tools : Pure Python standard library
+        </div>
+        <div class="footer-links">
+          <a href="https://github.com/qtremors/gtrmrs" target="_blank" rel="noopener" class="footer-link">GitHub</a>
+          <a href="https://github.com/qtremors/gtrmrs/blob/main/LICENSE.md" target="_blank" rel="noopener" class="footer-link">License</a>
+          <a href="#top" class="footer-link">Top</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

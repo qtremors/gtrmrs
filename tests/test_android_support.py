@@ -72,6 +72,13 @@ class TestAndroidLocrSupport(unittest.TestCase):
             )
             write_file(repo, "captures/screen.kt", "class Capture {}\n")
             write_file(repo, "build/generated/Generated.kt", "class Generated {}\n")
+            write_file(repo, "app/build/generated/NestedGenerated.kt", "class NestedGenerated {}\n")
+            write_file(repo, "app/schemas/com.example.AppDatabase/1.json", "{\n  \"formatVersion\": 1\n}\n")
+            write_file(repo, "signing.properties", "keyAlias=sample\n")
+            write_file(repo, "keystore.properties", "storePassword=sample\n")
+            write_file(repo, "app/src/main/proto/settings.proto", "syntax = \"proto3\";\nmessage User {}\n")
+            write_file(repo, "app/src/main/cpp/native-lib.cpp", "#include <jni.h>\nvoid init() {}\n")
+            write_file(repo, "app/src/main/cpp/native-lib.hpp", "#pragma once\nvoid init();\n")
 
             results, _ = LocrEngine(repo).scan()
 
@@ -83,6 +90,10 @@ class TestAndroidLocrSupport(unittest.TestCase):
             self.assertEqual(results["Properties"]["files"], 1)
             self.assertEqual(results["Java"]["files"], 1)
             self.assertEqual(results["XML"]["files"], 2)
+            self.assertEqual(results["Protocol Buffers"]["files"], 1)
+            self.assertEqual(results["C++"]["files"], 1)
+            self.assertEqual(results["C++ Header"]["files"], 1)
+            self.assertNotIn("JSON", results)
 
 
 class TestAndroidGitMigSupport(unittest.TestCase):
@@ -131,6 +142,8 @@ class TestAndroidRtreeSupport(unittest.TestCase):
             write_file(repo, "externalNativeBuild/output.txt", "native\n")
             write_file(repo, "build/generated/source.txt", "generated\n")
 
+            write_file(repo, "schemas/db/1.json", "schema\n")
+
             default_tree = RepoTreeVisualizer(repo, raw_mode=False, use_color=False)
             raw_tree = RepoTreeVisualizer(repo, raw_mode=True, use_color=False)
 
@@ -141,6 +154,7 @@ class TestAndroidRtreeSupport(unittest.TestCase):
             self.assertNotIn("captures/", default_tree.visible_paths)
             self.assertNotIn("externalNativeBuild/", default_tree.visible_paths)
             self.assertNotIn("build/", default_tree.visible_paths)
+            self.assertNotIn("schemas/", default_tree.visible_paths)
 
             self.assertIn(".gradle/", raw_tree.visible_paths)
             self.assertIn(".kotlin/", raw_tree.visible_paths)
@@ -148,3 +162,19 @@ class TestAndroidRtreeSupport(unittest.TestCase):
             self.assertIn("captures/", raw_tree.visible_paths)
             self.assertIn("externalNativeBuild/", raw_tree.visible_paths)
             self.assertIn("build/", raw_tree.visible_paths)
+            self.assertIn("schemas/", raw_tree.visible_paths)
+
+
+class TestGitRootDetection(unittest.TestCase):
+    def test_find_git_root_in_subdirectories(self) -> None:
+        from gtrmrs.core.git_utils import find_git_root, is_git_repo
+
+        with tempfile.TemporaryDirectory() as root:
+            git_dir = os.path.join(root, ".git")
+            os.makedirs(git_dir)
+            sub_module = os.path.join(root, "features", "auth", "src")
+            os.makedirs(sub_module)
+
+            self.assertEqual(find_git_root(sub_module), root)
+            self.assertTrue(is_git_repo(sub_module))
+

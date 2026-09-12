@@ -1,8 +1,37 @@
 # gtrmrs — Changelog
 
 > **Project:** gtrmrs (unified CLI)
-> **Version:** 1.4.0
-> **Last Updated:** 10-05-2026
+> **Version:** 1.5.0
+> **Last Updated:** 12-09-2026
+
+---
+
+## [1.5.0] - 12-09-2026
+
+### Added
+
+- **deps**: Multi-repository dependency auditor and updater (`gtrmrs deps` and `deps`)
+  - Audits Gradle version catalogs (`libs.versions.toml`), wrapper distributions, and SDK levels
+  - Detects version drift and discrepancies across repositories
+  - Queries upstream registries (Google Maven, Maven Central, Gradle Plugin Portal) for new releases
+  - Supports safe in-place catalog updates (`--align`, `--update`) with `--dry-run` preview
+  - Generates standalone interactive HTML reports (`--html`) and JSON exports (`--json`)
+  - Modular scanner interface ready for future Web and Desktop package ecosystems
+- **locr**: Added support for C++ headers and sources (`.hpp`, `.hh`, `.hxx`, `.cc`, `.cxx`) and Protocol Buffers (`.proto`)
+
+### Fixed
+
+- **locr**: Fixed eager directory pruning pattern compilation that caused heavy traversal on multi-module Android projects (reducing scan times from 25s down to 0.5s)
+- **locr**: Excluded Room database JSON schema dumps (`schemas/`) from code line counts
+- **core**: Added upward Git root discovery (`find_git_root`) to ensure Git-aware filtering operates accurately from nested subdirectories
+- **core**: Added `signing.properties` and `keystore.properties` to default file exclusion patterns
+- **rtree**: Resolved Windows terminal charmap encoding when printing Unicode tree characters
+
+### Documentation
+
+- Created developer-first documentation website in `docs/` with live TUI terminal simulator, command cheat sheet, tech stack breakdown, and live GitHub stars/forks stats
+- Clarified that gtrmrs is a local source install only and not distributed on package managers
+- Updated project `.gitignore` to ignore temporary test artifacts and report outputs
 
 ---
 

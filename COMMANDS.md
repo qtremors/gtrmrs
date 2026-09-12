@@ -1,6 +1,6 @@
 # gtrmrs — Complete Command Reference
 
-> **Version:** 1.4.0  
+> **Version:** 1.5.0  
 > All commands can be called directly (`rtree`) or via umbrella (`gtrmrs rtree`).
 
 ---
@@ -10,6 +10,7 @@
 - [rtree Commands](#rtree-commands)
 - [locr Commands](#locr-commands)
 - [gitmig Commands](#gitmig-commands)
+- [deps Commands](#deps-commands)
 - [gtrmrs Umbrella](#gtrmrs-umbrella)
 
 ---
@@ -327,6 +328,72 @@ gitmig D:\Backup --max-size 50M --stats
 
 ---
 
+## deps Commands
+
+Multi-repository dependency and upgrade auditor and updater.
+
+### Basic Usage
+
+```bash
+# Scan current directory for dependency catalogs
+deps
+gtrmrs deps
+
+# Scan specific folder or workspace
+deps /path/to/repositories
+deps "X:/Github"
+deps --dir "X:/Github"
+```
+
+### Offline and Fast Scanning
+
+```bash
+# Skip querying upstream registries (compare repos against each other only)
+deps --no-upstream
+```
+
+### Filtering Repositories
+
+```bash
+# Filter scan or updates to a specific repository
+deps --repo earnslate
+```
+
+### Generating Reports
+
+```bash
+# Generate standalone interactive HTML report
+deps --html
+
+# Specify custom HTML file path
+deps --html audit-report.html
+
+# Generate HTML report and open in default browser
+deps --open
+
+# Machine-readable JSON output
+deps --json
+deps --json --out report.json
+```
+
+### Dependency Updating and Alignment
+
+```bash
+# Preview aligning outdated repos to highest version across workspace (dry-run)
+deps --align --dry-run
+
+# Apply alignment across repositories
+deps --align
+
+# Preview upgrading dependencies to upstream latest stable releases (dry-run)
+deps --update --dry-run
+
+# Apply upstream upgrades
+deps --update
+```
+
+---
+
 ## gtrmrs Umbrella
 
 All subcommands accessible via `gtrmrs`:
@@ -375,3 +442,8 @@ gtrmrs gitmig ./backup --dry-run
 | Backup repos | `gitmig ./backup` |
 | Preview backup | `gitmig ./backup --dry-run` |
 | Zip repos | `gitmig ./backup --zip` |
+| Audit dependencies | `deps` |
+| Fast offline audit | `deps --no-upstream` |
+| Generate HTML report | `deps --html --open` |
+| Align workspace versions | `deps --align --dry-run` |
+| Upgrade upstream deps | `deps --update --dry-run` |

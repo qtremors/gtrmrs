@@ -129,15 +129,18 @@ python -m unittest tests.test_rtree -v
 
 ---
 
-## Building
+## Installation (Local Only)
+
+gtrmrs is a local tool suite and is not published on PyPI or package managers.
 
 ```bash
-# Editable install (development)
+# Editable local install (recommended for development)
 pip install -e .
 
-# Build distribution
-python -m build
+# Or standard local install
+pip install .
 
-# Upload to PyPI (requires credentials)
-twine upload dist/*
+# Or run directly without installation
+python -m gtrmrs.cli --help
 ```
+

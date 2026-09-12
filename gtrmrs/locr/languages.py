@@ -76,6 +76,42 @@ LANGUAGES = {
         "single": "//",
         "multi": ("/*", "*/"),
     },
+    ".cc": {
+        "name": "C++",
+        "color": Colors.BLUE,
+        "single": "//",
+        "multi": ("/*", "*/"),
+    },
+    ".cxx": {
+        "name": "C++",
+        "color": Colors.BLUE,
+        "single": "//",
+        "multi": ("/*", "*/"),
+    },
+    ".hpp": {
+        "name": "C++ Header",
+        "color": Colors.BLUE,
+        "single": "//",
+        "multi": ("/*", "*/"),
+    },
+    ".hh": {
+        "name": "C++ Header",
+        "color": Colors.BLUE,
+        "single": "//",
+        "multi": ("/*", "*/"),
+    },
+    ".hxx": {
+        "name": "C++ Header",
+        "color": Colors.BLUE,
+        "single": "//",
+        "multi": ("/*", "*/"),
+    },
+    ".proto": {
+        "name": "Protocol Buffers",
+        "color": Colors.CYAN,
+        "single": "//",
+        "multi": ("/*", "*/"),
+    },
     ".cs": {
         "name": "C#",
         "color": Colors.MAGENTA,

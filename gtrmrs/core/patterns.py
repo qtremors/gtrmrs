@@ -42,6 +42,7 @@ EXCLUDE_DIRS: List[str] = [
     ".cxx",
     "captures",
     "externalNativeBuild",
+    "schemas",
     # Build Artifacts
     "dist",
     "build",
@@ -74,6 +75,8 @@ EXCLUDE_FILE_PATTERNS: List[str] = [
     "*.so",
     "*.dylib",
     "local.properties",
+    "signing.properties",
+    "keystore.properties",
     "*.apk",
     "*.aab",
     "*.dex",
